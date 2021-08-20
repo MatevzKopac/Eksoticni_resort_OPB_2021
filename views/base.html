@@ -12,12 +12,32 @@
         <script src="/static/banka.js"></script>
     </head>
     <body>
-        <nav class="navbar navbar-dark bg-primary">
-            <div class="container">
-                <a class="navbar-brand" href="#">Eksotični resort</a>
-                <a href="/odjava" class="text-white">Odjava</a>
-            </div>                        
-        </nav>
+        <nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+            <a class="navbar-brand" href="#">Eksotični resort</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+                <a class="nav-item nav-link" href="\gost">Gostje</a>
+                <a class="nav-item nav-link" href="\zaposleni">Zaposleni</a>
+                <a class="nav-item nav-link" href="\sobe">Rezervacije</a>
+                <a class="nav-item nav-link" href="\hrana">Kuhinja</a>
+                <a class="nav-item nav-link" href="\ciscenje">Čiščenje</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Profil
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="#">Moji podatki</a>
+                        <a class="dropdown-item" href="#">Pravice</a>
+                        <a class="dropdown-item" href="#">Odjavi se</a>
+                    </div>
+                </li>            
+              </div>
+            </div>
+          </nav>
 
         <div class="container">
 
