@@ -42,11 +42,12 @@ CREATE TABLE nastanitve (
 
 
 CREATE TABLE hrana (
-    id      AUTO_INCREMENT   PRIMARY KEY,
-    gost    CHAR            REFERENCES gost(emso),
-    datum   DATE            NOT NULL,
-    tip_obroka  CHAR        NOT NULL,
-    pripravil   CHAR        REFERENCES zaposleni(emso)
+    id          INTEGER         UNIQUE      PRIMARY KEY,
+    gost_id     CHAR            REFERENCES gost(emso),
+    datum       DATE            NOT NULL,
+    tip_obroka  CHAR            NOT NULL,
+    pripravljena    BIT         NOT NULL,
+    pripravil_id    CHAR        REFERENCES zaposleni(emso)
 );
 
 
