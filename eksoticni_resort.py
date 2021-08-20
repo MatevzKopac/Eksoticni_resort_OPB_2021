@@ -1,3 +1,4 @@
+from re import A
 from bottle import *
 import sqlite3
 import hashlib
@@ -13,13 +14,20 @@ debug(True)  # za izpise pri razvoju
 static_dir = "./static"
 
 # Funkcija za pomoč pri štetju dni
+import datetime
 
 def daterange(start_date, end_date):
-    date_format = "%Y-%m-%d"
-    a = datetime.strptime(start_date, date_format)
-    b = datetime.strptime(end_date, date_format)
-    for n in range(int((b - a).days)):
-        yield start_date + timedelta(n)
+    list = []
+    date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    date_2 = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+    datum = date_1
+
+    while datum != date_2:
+        list.append(datum.strftime("%Y-%m-%d"))
+        datum = datum + datetime.timedelta(days=1)
+
+    return list
+
 
 
 
@@ -191,11 +199,12 @@ def rezerviraj_sobo_post(stevilka):
     datumprihoda = request.forms.datumprihoda
     datumodhoda = request.forms.datumodhoda
 
-    cur = baza.cursor()
+    seznam = daterange(datumprihoda, datumodhoda)
 
-#    for single_date in daterange(datumprihoda, datumodhoda):    
-    cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
-        (gost_id, datumprihoda, soba_id))
+    cur = baza.cursor()
+    for datum in seznam:    
+        cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
+            (gost_id, datum, soba_id))
     redirect('/sobe/pregled/' + soba_id)
 
 
