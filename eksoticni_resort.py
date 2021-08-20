@@ -202,28 +202,32 @@ def rezerviraj_sobo_post(stevilka):
     seznam = daterange(datumprihoda, datumodhoda)
 
     cur = baza.cursor()
+
     for datum in seznam:    
         cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
             (gost_id, datum, soba_id))
     redirect('/sobe/pregled/' + soba_id)
 
 
-#@post('/zaposleni/uredi/<emso>')
-#def uredi_zaposlenega_post(emso):
-#    novi_emso = request.forms.emso
-#    ime = request.forms.ime
-#    priimek = request.forms.priimek
-#    spol = request.forms.spol
-#    placa = request.forms.placa
-#    oddelek = request.forms.oddelek
-#    cur = baza.cursor()
-#    cur.execute("UPDATE zaposleni SET emso = ?, ime = ?, priimek = ?, spol = ?, placa = ?, oddelek = ? WHERE emso = ?", 
-#        (novi_emso, ime, priimek, spol, placa, oddelek, emso))
-#    redirect('/zaposleni')
-#
-#
+@get('/hrana')
+def narocila():
+    napaka = None
+    cur = baza.cursor()
+    hrana = cur.execute("""
+        SELECT DISTINCT hrana.id, hrana.gost_id, gost.ime, gost.priimek, nastanitve.soba_id, hrana.datum, tip_obroka FROM hrana 
+        INNER JOIN gost ON hrana.gost_id = gost.emso 
+        INNER JOIN nastanitve ON (hrana.gost_id = nastanitve.gost_id AND hrana.datum = nastanitve.datum)
+        WHERE (pripravljena == 0)
+    """)
+    return template('hrana.html', hrana=hrana, napaka=napaka)
 
-
+# To je treba popraviti, da avtomatsko doda id zaposlenega, ki postreže
+@post('/hrana/postrezi/<id>')
+def postrezi(id):
+    napaka = None
+    cur = baza.cursor()
+    cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = NULL WHERE id = ?",(id))
+    redirect('/hrana')
 
 
 
