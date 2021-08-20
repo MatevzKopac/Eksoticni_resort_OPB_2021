@@ -8,14 +8,6 @@ def uvoziSQL(cur, datoteka):
         koda = f.read()
         cur.executescript(koda)
 
-# Uvoz preko SQL skript
-# with sqlite3.connect(baza_datoteka) as baza:
-#     cur = baza.cursor()
-#     uvoziSQL(cur, 'banka.sql')
-#     uvoziSQL(cur, 'podatki/posta.sql')
-#     uvoziSQL(cur, 'podatki/oseba.sql')
-#     uvoziSQL(cur, 'podatki/racun.sql')
-#     uvoziSQL(cur, 'podatki/transakcija.sql')
 
 def uvoziCSV(cur, tabela):
     with open('podatki/{0}.csv'.format(tabela)) as csvfile:
@@ -26,10 +18,11 @@ def uvoziCSV(cur, tabela):
         cur.executemany("INSERT INTO {0} ({1}) VALUES ({2})".format(
             tabela, ",".join(glava), ",".join(['?']*len(glava))), vrstice)
 
+
 with sqlite3.connect(baza_datoteka) as baza:
     cur = baza.cursor()
     uvoziSQL(cur, 'eksoticni_resort.sql')
     uvoziSQL(cur, 'podatki\gost.sql')
-    #uvoziCSV(cur, 'oseba')
-    #uvoziCSV(cur, 'racun')
-    #uvoziCSV(cur, 'transakcija')
+    uvoziSQL(cur, 'podatki\zaposleni.sql')
+    uvoziSQL(cur, 'podatki\sobe.sql')
+    uvoziSQL(cur, 'podatki\\nastanitve.sql')
