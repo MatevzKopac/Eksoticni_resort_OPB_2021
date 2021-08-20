@@ -26,3 +26,4 @@ with sqlite3.connect(baza_datoteka) as baza:
     uvoziSQL(cur, 'podatki\zaposleni.sql')
     uvoziSQL(cur, 'podatki\sobe.sql')
     uvoziSQL(cur, 'podatki\\nastanitve.sql')
+    uvoziSQL(cur, 'podatki\hrana.sql')
