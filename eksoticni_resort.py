@@ -12,6 +12,16 @@ debug(True)  # za izpise pri razvoju
 # Mapa za statične vire (slike, css, ...)
 static_dir = "./static"
 
+# Funkcija za pomoč pri štetju dni
+
+def daterange(start_date, end_date):
+    date_format = "%Y-%m-%d"
+    a = datetime.strptime(start_date, date_format)
+    b = datetime.strptime(end_date, date_format)
+    for n in range(int((b - a).days)):
+        yield start_date + timedelta(n)
+
+
 
 # SPLETNI NASLOVI
 
@@ -25,6 +35,8 @@ def static(filename):
 def zacetna_stran():
     redirect('gost')
 
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ G O S T J E ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/gost')
 def gost():
@@ -83,6 +95,126 @@ def brisi_gosta(emso):
     cur = baza.cursor()
     cur.execute("DELETE FROM gost WHERE emso = ?", (emso, ))
     redirect('/gost')
+
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Z A P O S L E N I ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@get('/zaposleni')
+def zaposleni():
+    napaka = None
+    cur = baza.cursor()
+    zaposleni = cur.execute("""
+        SELECT emso, ime, priimek, spol, placa, oddelek FROM zaposleni
+    """)
+    return template('zaposleni.html', zaposleni=zaposleni, napaka=napaka)
+
+
+@post('/zaposleni/brisi/<emso>')
+def brisi_zaposlenega(emso):
+    napaka = None
+    cur = baza.cursor()
+    cur.execute("DELETE FROM zaposleni WHERE emso = ?", (emso, ))
+    redirect('/zaposleni')
+
+
+@get('/zaposleni/dodaj')
+def dodaj_zaposlenega_get():
+    napaka = None
+    return template('zaposleni-dodaj.html', napaka=napaka)
+
+
+@post('/zaposleni/dodaj')
+def dodaj_zaposlenega_post():
+    emso = request.forms.emso
+    ime = request.forms.ime
+    priimek = request.forms.priimek
+    spol = request.forms.spol
+    placa = request.forms.placa
+    oddelek = request.forms.oddelek
+    cur = baza.cursor()
+    cur.execute("INSERT INTO zaposleni (emso, ime, priimek, spol, placa, oddelek) VALUES (?, ?, ?, ?, ?, ?)", 
+         (emso, ime, priimek, spol, placa, oddelek))
+    redirect('/zaposleni')
+
+
+@get('/zaposleni/uredi/<emso>')
+def uredi_zaposlenega_get(emso):
+    napaka = None
+    zaposleni = cur.execute("SELECT emso, ime, priimek, spol, placa, oddelek FROM zaposleni WHERE emso = ?", (emso,)).fetchone()
+    return template('zaposleni-uredi.html', zaposleni=zaposleni, napaka=napaka)
+
+
+@post('/zaposleni/uredi/<emso>')
+def uredi_zaposlenega_post(emso):
+    novi_emso = request.forms.emso
+    ime = request.forms.ime
+    priimek = request.forms.priimek
+    spol = request.forms.spol
+    placa = request.forms.placa
+    oddelek = request.forms.oddelek
+    cur = baza.cursor()
+    cur.execute("UPDATE zaposleni SET emso = ?, ime = ?, priimek = ?, spol = ?, placa = ?, oddelek = ? WHERE emso = ?", 
+        (novi_emso, ime, priimek, spol, placa, oddelek, emso))
+    redirect('/zaposleni')
+
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ S O B E ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@get('/sobe')
+def sobe():
+    napaka = None
+    cur = baza.cursor()
+    sobe = cur.execute("""
+        SELECT stevilka, cena, postelje FROM sobe
+    """)
+    return template('sobe.html', sobe=sobe, napaka=napaka)
+
+
+@get('/sobe/pregled/<stevilka>')
+def pregled_rezervacij(stevilka):
+    napaka = None
+    zasedena = cur.execute("SELECT datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
+    return template('pregled-zasedenosti.html', zasedena=zasedena, stevilka=stevilka, napaka=napaka) 
+
+
+
+@get('/sobe/rezerviraj/<stevilka>')
+def rezerviraj_sobo_get(stevilka):
+    napaka = None
+    zasedena = cur.execute("SELECT datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
+    return template('rezerviraj-sobo.html', zasedena=zasedena, napaka=napaka, stevilka=stevilka)
+
+@post('/sobe/rezerviraj/<stevilka>')
+def rezerviraj_sobo_post(stevilka):
+    gost_id = request.forms.gost_id
+    soba_id = request.forms.soba_id
+    datumprihoda = request.forms.datumprihoda
+    datumodhoda = request.forms.datumodhoda
+
+    cur = baza.cursor()
+
+#    for single_date in daterange(datumprihoda, datumodhoda):    
+    cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
+        (gost_id, datumprihoda, soba_id))
+    redirect('/sobe/pregled/' + soba_id)
+
+
+#@post('/zaposleni/uredi/<emso>')
+#def uredi_zaposlenega_post(emso):
+#    novi_emso = request.forms.emso
+#    ime = request.forms.ime
+#    priimek = request.forms.priimek
+#    spol = request.forms.spol
+#    placa = request.forms.placa
+#    oddelek = request.forms.oddelek
+#    cur = baza.cursor()
+#    cur.execute("UPDATE zaposleni SET emso = ?, ime = ?, priimek = ?, spol = ?, placa = ?, oddelek = ? WHERE emso = ?", 
+#        (novi_emso, ime, priimek, spol, placa, oddelek, emso))
+#    redirect('/zaposleni')
+#
+#
+
+
 
 
 
