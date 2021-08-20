@@ -12,7 +12,7 @@
     <th>Priimek</th>
     <th>Akcije</th>
   </tr>
-  %for (datum, gost_id, ime, priimek) in zasedena:
+  %for (id, datum, gost_id, ime, priimek) in zasedena:
   <tr>
     <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
     <td>{{gost_id}}</td>
@@ -20,7 +20,7 @@
     <td>{{priimek}}</td>
     <td>
       <div class="akcije">
-        <form action="/sobe/brisi/{{stevilka}}/{{datum}} {" method="post" class="akcija">
+        <form action="/sobe/brisi/{{id}}/{{stevilka}}" method="post" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Briši rezervacijo</a>
         </form>
         </form>

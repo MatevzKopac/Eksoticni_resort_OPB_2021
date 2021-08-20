@@ -181,7 +181,7 @@ def sobe():
 @get('/sobe/pregled/<stevilka>')
 def pregled_rezervacij(stevilka):
     napaka = None
-    zasedena = cur.execute("SELECT datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
+    zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
     return template('pregled-zasedenosti.html', zasedena=zasedena, stevilka=stevilka, napaka=napaka) 
 
 
@@ -189,7 +189,7 @@ def pregled_rezervacij(stevilka):
 @get('/sobe/rezerviraj/<stevilka>')
 def rezerviraj_sobo_get(stevilka):
     napaka = None
-    zasedena = cur.execute("SELECT datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
+    zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
     return template('rezerviraj-sobo.html', zasedena=zasedena, napaka=napaka, stevilka=stevilka)
 
 @post('/sobe/rezerviraj/<stevilka>')
@@ -207,6 +207,14 @@ def rezerviraj_sobo_post(stevilka):
         cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
             (gost_id, datum, soba_id))
     redirect('/sobe/pregled/' + soba_id)
+
+@post('/sobe/brisi/<id>/<stevilka>')
+def rezerviraj_sobo_post(id, stevilka):
+    napaka = None
+    cur = baza.cursor()
+    cur.execute("DELETE FROM nastanitve WHERE id = ?", (id, ))
+    redirect('/sobe/pregled/' + stevilka)
+
 
 
 @get('/hrana')
