@@ -1,0 +1,34 @@
+% setdefault('napaka', '')
+% rebase('base.html', napaka=napaka, naslov='Postrežba hrane')
+
+% include('orodna-vrstica.html', povezava='/hrana/dodaj_narocilo', napis="Novo naročilo", stolpci='[0,1,2,5]')
+<table id="izpis" class="table table-hover">
+  <tr>
+    <th>ID</th>
+    <th>Emšo</th>
+    <th>Ime</th>
+    <th>Priimek</th>
+    <th>Številka sobe</th>
+    <th>Datum</th>
+    <th>Tip obroka</th>
+    <th>Akcije</th>
+  </tr>
+  %for (id, gost_id, ime, priimek, soba_id, datum, tip_obroka) in hrana:
+  <tr>
+    <td>{{id}}</td>
+    <td>{{gost_id}}</td>
+    <td>{{ime}}</td>
+    <td>{{priimek}}</td>
+    <td>{{soba_id}}</td>
+    <td>{{datum}}</td>
+    <td>{{tip_obroka}}</td>
+    <td>
+      <div class="akcije">
+        <form action="/hrana/postrezi/{{id}}" method="post" class="akcija">
+          <a href="#" onclick="this.parentElement.submit()">Postrezi</a>
+        </form>
+      </div>
+    </td>
+  </tr>
+  %end
+</table>
