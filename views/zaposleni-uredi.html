@@ -1,12 +1,12 @@
 % setdefault('napaka', '')
-% setdefault('naslov', 'Uredi gosta')
+% setdefault('naslov', 'Uredi zaposlenega')
 % rebase('base.html', napaka=napaka, naslov=naslov)
 
-<form action="{{'/gost/uredi/' + gost[0]}}" method="post">
+<form action="{{'/zaposleni/uredi/' + zaposleni[0]}}" method="post">
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="emso">Emšo</label>
-            <input id="emso" name="emso" type="text" class="form-control" required  value="{{gost[0]}}"
+            <input id="emso" name="emso" type="text" class="form-control" required  value="{{zaposleni[0]}}"
                 oninput="this.setCustomValidity('')"
                 oninvalid="this.setCustomValidity('Obvezno polje')"
                 />
@@ -16,7 +16,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="ime">Ime</label>
-            <input id="ime" name="ime" type="text" class="form-control" required value="{{gost[1]}}"
+            <input id="ime" name="ime" type="text" class="form-control" required value="{{zaposleni[1]}}"
                 oninput="this.setCustomValidity('')"
                 oninvalid="this.setCustomValidity('Obvezno polje')"
                 />
@@ -26,7 +26,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="priimek">Priimek</label>
-            <input id="priimek" name="priimek" type="text" class="form-control" required value="{{gost[2]}}"
+            <input id="priimek" name="priimek" type="text" class="form-control" required value="{{zaposleni[2]}}"
                 oninput="this.setCustomValidity('')"
                 oninvalid="this.setCustomValidity('Obvezno polje')"
                 />
@@ -37,7 +37,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
                 <label for="spol">Spol</label> <br>
-                %if gost[4] == "M":
+                %if zaposleni[3] == "M":
                 <input type="radio" id="m" name="spol" value="M" checked>
                 <label for="m">M</label><br>
                 <input type="radio" id="f" name="spol" value="F">
@@ -53,10 +53,10 @@
 
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label for="drzava">Država</label>
-            <input id="drzava" name="drzava" type="text" class="form-control" required value="{{gost[3]}}"
+            <label for="placa">Plača</label>
+            <input id="placa" name="placa" type="number" class="form-control" required value="{{zaposleni[4]}}" min="600" max="10000"
                 oninput="this.setCustomValidity('')"
-                oninvalid="this.setCustomValidity('Obvezno polje')"
+                oninvalid="this.setCustomValidity('Vnesi plačo med 600 in 10 000 evri')"
                 />
 
         </div>
@@ -64,11 +64,22 @@
 
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label for="starost">Starost</label>
-            <input id="starost" name="starost" type="number" class="form-control" required min="10" max="80" value="{{gost[5]}}"
-                oninput="this.setCustomValidity('')"
-                oninvalid="this.setCustomValidity('Vnesi število med 10 in 80')"
-                />
+            <label for="oddelek">Oddelek</label>
+            <select name="oddelek" id="oddelek">
+                %if zaposleni[5] == "ciscenje":
+                    <option value="ciscenje" selected="selected">Čiščenje</option>
+                    <option value="recepcija">Recepcija</option>
+                    <option value="kuhinja">Kuhinja</option>
+                %elif zaposleni[5] == "recepcija":
+                    <option value="ciscenje">Čiščenje</option>
+                    <option value="recepcija" selected="selected">Recepcija</option>
+                    <option value="kuhinja">Kuhinja</option>
+                %else:
+                    <option value="ciscenje">Čiščenje</option>
+                    <option value="recepcija">Recepcija</option>
+                    <option value="kuhinja" selected="selected">Kuhinja</option>
+                %end
+              </select>
         </div>
     </div>
 

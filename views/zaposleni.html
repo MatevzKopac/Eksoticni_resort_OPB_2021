@@ -1,35 +1,35 @@
 % setdefault('napaka', '')
-% rebase('base.html', napaka=napaka, naslov='Gostje')
+% rebase('base.html', napaka=napaka, naslov='Zaposleni')
 
-% include('orodna-vrstica.html', povezava='/gost/dodaj', napis="Dodaj novega gosta", stolpci='[0,1,2,3]')
+% include('orodna-vrstica.html', povezava='/zaposleni/dodaj', napis="Dodaj novega zaposlenega", stolpci='[0,1,2,4]')
 <table id="izpis" class="table table-hover">
   <tr>
     <th>Emšo</th>
     <th>Ime</th>
     <th>Priimek</th>
-    <th>Država</th>
     <th>Spol</th>
-    <th>Starost</th>
+    <th>Plača</th>
+    <th>Oddelek</th>
     <th>Akcije</th>
   </tr>
-  %for (emso, ime, priimek, drzava, spol, starost) in gosti:
+  %for (emso, ime, priimek, spol, placa, oddelek) in zaposleni:
   <tr>
     <td>{{emso}}</td>
     <td>{{ime}}</td>
     <td>{{priimek}}</td>
-    <td>{{drzava}}</td>
     <td>{{spol}}</td>
-    <td>{{starost}}</td>
+    <td>{{placa}}</td>
+    <td>{{oddelek}}</td>
     <td>
       <div class="akcije">
-        <form action="/gost/brisi/{{emso}}" method="post" class="akcija">
+        <form action="/zaposleni/brisi/{{emso}}" method="post" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Briši</a>
         </form>
-        <form action="/gost/uredi/{{emso}}" method="get" class="akcija">
+        <form action="/zaposleni/uredi/{{emso}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Uredi</a>
         </form>
         <form action="/komitent/{{emso}}/racuni" method="get" class="akcija">
-          <a href="#" onclick="this.parentElement.submit()">Bivanje</a>
+          <a href="#" onclick="this.parentElement.submit()">Zgodovina</a>
         </form>
       </div>
     </td>

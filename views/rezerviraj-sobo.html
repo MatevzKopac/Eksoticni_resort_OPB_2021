@@ -1,0 +1,51 @@
+% setdefault('napaka', '')
+% setdefault('naslov', 'Dodaj novo rezervacijo')
+% rebase('base.html', napaka=napaka, naslov=naslov)
+
+<form action="/sobe/rezerviraj/<stevilka>" method="post">
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="gost_id">Emšo</label>
+            <input id="gost_id" name="gost_id" type="text" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="soba_id">Številka sobe</label>
+            <input id="soba_id" name="soba_id" type="number" class="form-control" value = {{stevilka}} min="1" max="160"  required
+            oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="datumprihoda">Datum prihoda</label>
+            <input type="date" id="datumprihoda" name="datumprihoda" required
+            oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="datumodhoda">Datum odhoda</label>
+            <input type="date" id="datumodhoda" name="datumodhoda" required
+            oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')">
+        </div>
+    </div>
+
+
+    <div class="form-row d-flex justify-content-end">
+        <button class="btn btn-primary" type="submit">
+            Potrdi rezervacijo
+        </button>
+    </div>
+</form>

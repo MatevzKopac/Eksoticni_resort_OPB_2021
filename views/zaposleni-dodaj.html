@@ -1,12 +1,12 @@
 % setdefault('napaka', '')
-% setdefault('naslov', 'Uredi gosta')
+% setdefault('naslov', 'Dodaj novega zaposlenega')
 % rebase('base.html', napaka=napaka, naslov=naslov)
 
-<form action="{{'/gost/uredi/' + gost[0]}}" method="post">
+<form action="/zaposleni/dodaj" method="post">
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="emso">Emšo</label>
-            <input id="emso" name="emso" type="text" class="form-control" required  value="{{gost[0]}}"
+            <input id="emso" name="emso" type="text" class="form-control" required
                 oninput="this.setCustomValidity('')"
                 oninvalid="this.setCustomValidity('Obvezno polje')"
                 />
@@ -16,7 +16,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="ime">Ime</label>
-            <input id="ime" name="ime" type="text" class="form-control" required value="{{gost[1]}}"
+            <input id="ime" name="ime" type="text" class="form-control" required
                 oninput="this.setCustomValidity('')"
                 oninvalid="this.setCustomValidity('Obvezno polje')"
                 />
@@ -26,7 +26,7 @@
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="priimek">Priimek</label>
-            <input id="priimek" name="priimek" type="text" class="form-control" required value="{{gost[2]}}"
+            <input id="priimek" name="priimek" type="text" class="form-control" required
                 oninput="this.setCustomValidity('')"
                 oninvalid="this.setCustomValidity('Obvezno polje')"
                 />
@@ -37,26 +37,19 @@
     <div class="form-row">
         <div class="form-group col-md-6">
                 <label for="spol">Spol</label> <br>
-                %if gost[4] == "M":
-                <input type="radio" id="m" name="spol" value="M" checked>
+                <input type="radio" id="m" name="spol" value="M">
                 <label for="m">M</label><br>
                 <input type="radio" id="f" name="spol" value="F">
                 <label for="f">F</label><br>
-                %else:
-                <input type="radio" id="m" name="spol" value="M">
-                <label for="m">M</label><br>
-                <input type="radio" id="f" name="spol" value="F" checked>
-                <label for="f">F</label><br>
-                %end
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label for="drzava">Država</label>
-            <input id="drzava" name="drzava" type="text" class="form-control" required value="{{gost[3]}}"
+            <label for="drzava">Plača</label>
+            <input id="drzava" name="placa" type="number" class="form-control" required min="600" max="10000"
                 oninput="this.setCustomValidity('')"
-                oninvalid="this.setCustomValidity('Obvezno polje')"
+                oninvalid="this.setCustomValidity('Vpiši plačo med 600 in 10 000 evri')"
                 />
 
         </div>
@@ -64,17 +57,18 @@
 
     <div class="form-row">
         <div class="form-group col-md-6">
-            <label for="starost">Starost</label>
-            <input id="starost" name="starost" type="number" class="form-control" required min="10" max="80" value="{{gost[5]}}"
-                oninput="this.setCustomValidity('')"
-                oninvalid="this.setCustomValidity('Vnesi število med 10 in 80')"
-                />
+            <label for="oddelek">Oddelek</label>
+            <select name="oddelek" id="oddelek">
+                <option value="ciscenje">Čiščenje</option>
+                <option value="recepcija">Recepcija</option>
+                <option value="kuhinja">Kuhinja</option>
+              </select>
         </div>
     </div>
 
     <div class="form-row d-flex justify-content-end">
         <button class="btn btn-primary" type="submit">
-            Posodobi
+            Dodaj zaposlenega
         </button>
     </div>
 </form>
