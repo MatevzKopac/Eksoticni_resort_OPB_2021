@@ -52,9 +52,11 @@ CREATE TABLE hrana (
 
 
 CREATE TABLE ciscenje (
-    id          AUTO_INCREMENT   PRIMARY KEY,
-    cistilka    CHAR            REFERENCES zaposleni(emso),
-    datum       DATE            NOT NULL,
-    soba_id        INTEGER         REFERENCES sobe(stevilka)
+    id          INTEGER         UNIQUE          PRIMARY KEY,
+    pocisceno   BIT             NOT NULL,
+    cistilka_id CHAR            REFERENCES zaposleni(emso),
+    datum       DATE,
+    obvezno_do  DATE            NOT NULL,
+    soba_id     INTEGER         REFERENCES sobe(stevilka)
 );
 
