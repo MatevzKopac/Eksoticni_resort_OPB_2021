@@ -1,0 +1,25 @@
+% setdefault('napaka', '')
+% rebase('base.html', napaka=napaka, naslov='Čiščenje sob')
+% import datetime
+
+% include('orodna-vrstica.html', povezava='ciscenje/zgodovina', napis="", stolpci='[0,2]')
+<table id="izpis" class="table table-hover">
+  <tr>
+    <th>ID</th>
+    <th>Soba</th>
+    <th>Datum čiščenja</th>
+    <th>Čistilka</th>
+    <th>Ime</th>
+    <th>Priimek</th>
+  </tr>
+  %for (id, soba_id, datum, cistilka_id, ime, priimek) in ciscenje:
+  <tr>
+    <td>{{id}}</td>
+    <td>{{soba_id}}</td>
+    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{cistilka_id}}</td>
+    <td>{{ime}}</td>
+    <td>{{priimek}}</td>
+  </tr>
+  %end
+</table>

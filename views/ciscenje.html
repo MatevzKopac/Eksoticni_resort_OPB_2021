@@ -1,0 +1,27 @@
+% setdefault('napaka', '')
+% rebase('base.html', napaka=napaka, naslov='Čiščenje sob')
+% import datetime
+
+% include('orodna-vrstica.html', povezava='ciscenje/zgodovina', napis="Zgodovina čiščenja", stolpci='[0,2]')
+<table id="izpis" class="table table-hover">
+  <tr>
+    <th>ID</th>
+    <th>Rok za čiščenje</th>
+    <th>Soba</th>
+    <th>Akcije</th>
+  </tr>
+  %for (id, obvezno_do, soba_id) in ciscenje:
+  <tr>
+    <td>{{id}}</td>
+    <td>{{datetime.datetime.strptime(obvezno_do, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{soba_id}}</td>
+    <td>
+      <div class="akcije">
+        <form action="/ciscenje/pocisti/{{id}}" method="post" class="akcija">
+          <a href="#" onclick="this.parentElement.submit()">Počisti sobo</a>
+        </form>
+      </div>
+    </td>
+  </tr>
+  %end
+</table>
