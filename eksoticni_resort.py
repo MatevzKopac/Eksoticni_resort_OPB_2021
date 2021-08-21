@@ -216,6 +216,7 @@ def rezerviraj_sobo_post(id, stevilka):
     redirect('/sobe/pregled/' + stevilka)
 
 
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ H R A N A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/hrana')
 def narocila():
@@ -229,13 +230,65 @@ def narocila():
     """)
     return template('hrana.html', hrana=hrana, napaka=napaka)
 
-# To je treba popraviti, da avtomatsko doda id zaposlenega, ki postreže
+# To je treba popraviti, da avtomatsko doda id zaposlenega, ki postreže (ko bojo ustimani usernameji)
 @post('/hrana/postrezi/<id>')
 def postrezi(id):
     napaka = None
     cur = baza.cursor()
     cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = NULL WHERE id = ?",(id))
     redirect('/hrana')
+
+@get('/hrana/dodaj')
+def dodaj_hrano_get():
+    napaka = None 
+    cur = baza.cursor()
+    return template('hrana-dodaj.html', napaka=napaka)
+
+@post('/hrana/dodaj')
+def dodaj_hrano_post():
+    emso = request.forms.emso
+    datum = request.forms.datum
+    obrok = request.forms.obrok
+    cur = baza.cursor()
+    cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+         (emso, datum, obrok))
+    redirect('/hrana')
+
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C I S C E N J E ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@get('/ciscenje')
+def ciscenje():
+    napaka = None
+    cur = baza.cursor()
+    ciscenje = cur.execute("""
+        SELECT id, obvezno_do, soba_id FROM ciscenje 
+        WHERE (pocisceno == 0)
+        ORDER BY obvezno_do ASC;
+    """)
+    return template('ciscenje.html', ciscenje=ciscenje, napaka=napaka)
+
+@get('/ciscenje/zgodovina')
+def ciscenje_zgodovina():
+    napaka = None
+    cur = baza.cursor()
+    ciscenje = cur.execute("""
+        SELECT id, soba_id, datum, cistilka_id, zaposleni.ime, zaposleni.priimek FROM ciscenje
+        INNER JOIN zaposleni ON (zaposleni.emso = cistilka_id)
+        WHERE (pocisceno == 1)
+        ORDER BY datum DESC;
+    """)
+    return template('ciscenje-zgodovina.html', ciscenje=ciscenje, napaka=napaka)
+
+# Tukaj je treba dodati še, da se avtomatsko napiše emšo uporabnika-čistilke, ki je prijavljena v sistem
+@post('/ciscenje/pocisti/<id>')
+def dodaj_hrano_post(id):
+    from datetime import date
+    cur.execute("UPDATE ciscenje SET pocisceno = 1, datum = ?, cistilka_id = '4276ad76-7ff9-476a-85e0-b5b6c0842c1c' WHERE id = ?", 
+        (date.today().strftime("%Y-%m-%d"), id))
+    redirect('/ciscenje')
+
+
 
 
 
@@ -244,6 +297,7 @@ baza.set_trace_callback(print) # izpis sql stavkov v terminal (za debugiranje pr
 # zapoved upoštevanja omejitev FOREIGN KEY
 cur = baza.cursor()
 cur.execute("PRAGMA foreign_keys = ON;")
+
 
 # reloader=True nam olajša razvoj (ozveževanje sproti - razvoj)
 run(host='localhost', port=8080, reloader=True)
