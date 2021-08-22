@@ -1,0 +1,117 @@
+% setdefault('napaka', '')
+% setdefault('naslov', 'Registracija')
+% rebase('base.html', napaka=napaka, naslov=naslov)
+
+<form action="/registracija" method="post" style="padding-bottom: 20px;" autocomplete="off">
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="emso">Emšo</label>
+            <input id="emso" name="emso" type="text" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+            <small id="emso" class="form-text text-muted">Prosimo, da vnesete svoje prave podatke.</small>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="username">Uporabniško ime</label>
+            <input id="username" name="username" type="text" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+            <small id="username" class="form-text text-muted">Željeno uporabniško ime, s katerim se boste prijavili.</small>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="password">Geslo</label>
+            <input id="password" name="password" type="password" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+            <small id="password" class="form-text text-muted">Geslo, s katerim se boste prijavili.</small>
+        </div>
+    </div>
+
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="password2">Še enkrat vnesi geslo</label>
+            <input id="password2" name="password2" type="password" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+            <small id="password2" class="form-text text-muted">Gesli se morata ujemati.</small>
+        </div>
+    </div>
+
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="ime">Ime</label>
+            <input id="ime" name="ime" type="text" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="priimek">Priimek</label>
+            <input id="priimek" name="priimek" type="text" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+                <label for="spol">Spol</label> <br>
+                <input type="radio" id="m" name="spol" value="M">
+                <label for="m">Moški</label><br>
+                <input type="radio" id="f" name="spol" value="F">
+                <label for="f">Ženska</label><br>
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="drzava">Država</label>
+            <input id="drzava" name="drzava" type="text" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="starost">Starost</label>
+            <input id="starost" name="starost" type="number" class="form-control" required min="10" max="80"
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Vnesi število med 10 in 80')"
+                />
+        </div>
+    </div>
+
+    <div class="form-row d-flex justify-content-start">
+        <button class="btn btn-primary" type="submit">
+            Registriracija
+        </button>
+    </div>
+</form>
+
+<div class="form-row d-flex justify-content-start">
+    <p>Že imate račun? <a href="\prijava">Prijava</a>
+</div>
+
+
