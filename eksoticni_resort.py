@@ -5,7 +5,7 @@ import sqlite3
 import hashlib
 
 
-# KONFIGURACIJA
+# KONFIGURACIJA1
 baza_datoteka = 'eksoticni_resort.db'
 
 # Odkomentiraj, če želiš sporočila o napakah
