@@ -1,4 +1,5 @@
 from re import A
+from tempfile import SpooledTemporaryFile
 from bottle import *
 import sqlite3
 import hashlib
@@ -41,7 +42,7 @@ def static(filename):
 
 @get('/')
 def zacetna_stran():
-    redirect('gost')
+    redirect('prijava')
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ G O S T J E ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -282,13 +283,42 @@ def ciscenje_zgodovina():
 
 # Tukaj je treba dodati še, da se avtomatsko napiše emšo uporabnika-čistilke, ki je prijavljena v sistem
 @post('/ciscenje/pocisti/<id>')
-def dodaj_hrano_post(id):
+def pocisti(id):
     from datetime import date
     cur.execute("UPDATE ciscenje SET pocisceno = 1, datum = ?, cistilka_id = '4276ad76-7ff9-476a-85e0-b5b6c0842c1c' WHERE id = ?", 
         (date.today().strftime("%Y-%m-%d"), id))
     redirect('/ciscenje')
 
 
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ R E G I S T R A C I J A, P R I J A V A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@get('/registracija')
+def registracija():
+    napaka = None
+    return template('registracija.html', napaka=napaka)
+
+@get('/prijava')
+def prijava():
+    napaka = None
+    return template('prijava.html', napaka=napaka)
+
+
+@post('/registracija')
+def registracija_post():
+    emso = request.forms.emso
+    username = request.forms.username
+    password = request.forms.password
+    password2 = request.forms.password2
+    ime = request.forms.ime
+    priimek = request.forms.priimek
+    spol = request.forms.spol
+    drzava = request.forms.drzava
+    starost = request.forms.starost
+
+@post('/prijava')
+def prijava_post():
+    username = request.forms.username
+    password = request.forms.password
 
 
 
