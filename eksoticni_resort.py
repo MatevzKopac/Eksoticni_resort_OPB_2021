@@ -39,7 +39,6 @@ def static(filename):
     return static_file(filename, root=static_dir)
 
 
-
 @get('/')
 def zacetna_stran():
     redirect('prijava')
