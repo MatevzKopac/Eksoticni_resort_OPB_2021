@@ -29,8 +29,17 @@ def daterange(start_date, end_date):
 
     return list
 
+skrivnost = "rODX3ulHw3ZYRdbIVcp1IfJTDn8iQTH6TFaNBgrSkjIulr"
 
-
+def nastaviSporocilo(sporocilo = None):
+    # global napakaSporocilo
+    staro = request.get_cookie("sporocilo", secret=skrivnost)
+    if sporocilo is None:
+        response.delete_cookie('sporocilo')
+    else:
+        response.set_cookie('sporocilo', sporocilo, path="/", secret=skrivnost)
+    return staro 
+    
 
 # SPLETNI NASLOVI
 
@@ -313,7 +322,23 @@ def registracija_post():
     priimek = request.forms.priimek
     spol = request.forms.spol
     drzava = request.forms.drzava
-    starost = request.forms.starost
+    starost = request.forms.starost  
+    if emso is None or username is None or password is None or password2 is None or ime is None or priimek is None or spol is None or drzava is None or starost is None:
+        nastaviSporocilo('Registracija ni možna') 
+        redirect('/registracija')
+        return
+    cur = baza.cursor()
+    uporabnik = None   
+    try:
+        uporabnik = cur.execute('SELECT * FROM gost WHERE emso = ?', (emso, )).fetchone()  
+    except:
+        uporabnik = None    
+    if uporabnik is not None:
+        nastaviSporocilo('Uporabnik s tem emšom že obstaja!') 
+        redirect('/registracija')
+        return
+    cur.execute('INSERT INTO gost()')
+
 
 @post('/prijava')
 def prijava_post():
