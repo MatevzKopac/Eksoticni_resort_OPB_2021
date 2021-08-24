@@ -301,19 +301,14 @@ def pocisti(id):
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ R E G I S T R A C I J A, P R I J A V A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def hashGesla(s):
-    m = hashlib.sha256()
-    m.update(s.encode("utf-8"))
-    return m.hexdigest()
-
 @get('/registracija')
 def registracija():
-    napaka = nastaviSporocilo()
+    napaka = None
     return template('registracija.html', napaka=napaka)
 
 @get('/prijava')
 def prijava():
-    napaka = nastaviSporocilo()
+    napaka = None
     return template('prijava.html', napaka=napaka)
 
 
@@ -328,7 +323,10 @@ def registracija_post():
     spol = request.forms.spol
     drzava = request.forms.drzava
     starost = request.forms.starost  
-    
+    if emso is None or username is None or password is None or password2 is None or ime is None or priimek is None or spol is None or drzava is None or starost is None:
+        nastaviSporocilo('Registracija ni možna') 
+        redirect('/registracija')
+        return
     cur = baza.cursor()
     uporabnik = None   
     try:
@@ -339,8 +337,13 @@ def registracija_post():
         nastaviSporocilo('Uporabnik s tem emšom že obstaja!') 
         redirect('/registracija')
         return
+<<<<<<< HEAD
     cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava,spol, starost, username, password))
     return redirect('/gost')
+=======
+    cur.execute('INSERT INTO gost()')
+
+>>>>>>> 1df715d90929979c669b6538d251909ecc327e11
 
 @post('/prijava')
 def prijava_post():
