@@ -53,7 +53,10 @@ def static(filename):
 def zacetna_stran():
     redirect('prijava')
 
-
+def hashGesla(s):
+    m = hashlib.sha256()
+    m.update(s.encode("utf-8"))
+    return m.hexdigest()
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ G O S T J E ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/gost')
@@ -308,7 +311,7 @@ def registracija():
 
 @get('/prijava')
 def prijava():
-    napaka = None
+    napaka = nastaviSporocilo()
     return template('prijava.html', napaka=napaka)
 
 
@@ -338,12 +341,32 @@ def registracija_post():
         redirect('/registracija')
         return
     cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava,spol, starost, username, password))
-    return redirect('/gost')
+    nastaviSporocilo('Regitracija uspešna! Vrnite se na prijavo.') 
+    return redirect('/prijava')
 
 @post('/prijava')
 def prijava_post():
     username = request.forms.username
     password = request.forms.password
+    if username is None or password is None:
+        nastaviSporocilo('Mankajoče uporabniško ime ali geslo!') 
+        redirect('/prijava')
+    cur = baza.cursor()
+    hgeslo = None
+    try:
+        hgeslo = cur.execute('SELECT geslo FROM gost WHERE username = ?', (username, )).fetchone
+    except:
+        hgeslo = None   
+    if hgeslo is None:
+        nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni0!') 
+        redirect('/prijava')
+        return
+    if password != hgeslo:
+        nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni1!') 
+        redirect('/prijava')
+        return
+    response.set_cookie('username', username, path="/", secret=skrivnost)
+    return redirect('/gost')
 
 
 
