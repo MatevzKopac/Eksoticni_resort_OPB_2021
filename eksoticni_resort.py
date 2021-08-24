@@ -383,19 +383,21 @@ def registracija_post():
     zgostitev = hashGesla(password)    
     cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava,spol, starost, username, zgostitev))
     response.set_cookie('username', username, secret=skrivnost)
-    return redirect('/gost')
+    return redirect('/prijava')
 
 @post('/prijava')
 def prijava_post():
     username = request.forms.username
     password = hashGesla(request.forms.password) 
+    #password = request.forms.password
     if username is None or password is None:
         nastaviSporocilo('Mankajoče uporabniško ime ali geslo!') 
         redirect('/prijava')
     cur = baza.cursor()
     hgeslo = None
     try:
-        hgeslo = cur.execute('SELECT geslo FROM gost WHERE username = ?', (username, )).fetchone
+        hgeslo = cur.execute('SELECT geslo FROM gost WHERE username = ?', (username, )).fetchone()
+        hgeslo = hgeslo[0]
     except:
         hgeslo = None   
     if hgeslo is None:
@@ -406,7 +408,7 @@ def prijava_post():
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni1!') 
         redirect('/prijava')
         return
-#    response.set_cookie('username', username, path="/", secret=skrivnost)
+    response.set_cookie('username', username, path="/", secret=skrivnost)
     return redirect('/gost')
 
 
