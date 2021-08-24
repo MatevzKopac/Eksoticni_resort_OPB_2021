@@ -14,7 +14,7 @@ CREATE TABLE gost (
     spol           CHAR    NOT NULL,
     starost        INTEGER NOT NULL,
     username       TEXT    UNIQUE,
-    password          TEXT    
+    geslo          TEXT    
 );
 
 
