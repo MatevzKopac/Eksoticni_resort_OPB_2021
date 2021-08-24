@@ -303,7 +303,7 @@ def pocisti(id):
 
 @get('/registracija')
 def registracija():
-    napaka = None
+    napaka = nastaviSporocilo()
     return template('registracija.html', napaka=napaka)
 
 @get('/prijava')
@@ -337,13 +337,8 @@ def registracija_post():
         nastaviSporocilo('Uporabnik s tem emšom že obstaja!') 
         redirect('/registracija')
         return
-<<<<<<< HEAD
     cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava,spol, starost, username, password))
     return redirect('/gost')
-=======
-    cur.execute('INSERT INTO gost()')
-
->>>>>>> 1df715d90929979c669b6538d251909ecc327e11
 
 @post('/prijava')
 def prijava_post():
