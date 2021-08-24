@@ -31,7 +31,9 @@ CREATE TABLE zaposleni (
     priimek     CHAR    NOT NULL,
     spol        CHAR    NOT NULL,    
     placa       INTEGER NOT NULL,
-    oddelek     CHAR    NOT NULL
+    oddelek     CHAR    NOT NULL,
+    username       CHAR    UNIQUE,
+    geslo          CHAR    
 );
 
 

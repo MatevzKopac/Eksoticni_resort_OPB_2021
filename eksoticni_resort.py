@@ -48,7 +48,20 @@ def preveriUporabnika():
         cur = baza.cursor()    
         uporabni = None
         try: 
-            uporabnik = cur.execute("SELECT * FROM oseba WHERE username = ?", (username, )).fetchone()
+            uporabnik = cur.execute("SELECT * FROM gost WHERE username = ?", (username, )).fetchone()
+        except:
+            uporabnik = None
+        if uporabnik: 
+            return uporabnik
+    redirect('/prijava')
+
+def preveriZaposlenega(): 
+    username = request.get_cookie("username", secret=skrivnost)
+    if username:
+        cur = baza.cursor()    
+        uporabni = None
+        try: 
+            uporabnik = cur.execute("SELECT * FROM zaposleni WHERE username = ?", (username, )).fetchone()
         except:
             uporabnik = None
         if uporabnik: 
@@ -76,6 +89,9 @@ def hashGesla(s):
 
 @get('/gost')
 def gost():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     gosti = cur.execute("""
@@ -86,12 +102,18 @@ def gost():
 
 @get('/gost/dodaj')
 def dodaj_gosta_get():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     return template('gost-dodaj.html', napaka=napaka)
 
 
 @post('/gost/dodaj')
 def dodaj_gosta_post():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     emso = request.forms.emso
     ime = request.forms.ime
     priimek = request.forms.priimek
@@ -106,6 +128,9 @@ def dodaj_gosta_post():
 
 @get('/gost/uredi/<emso>')
 def uredi_gosta_get(emso):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     gost = cur.execute("SELECT emso, ime, priimek, drzava, spol, starost FROM gost WHERE emso = ?", (emso,)).fetchone()
     return template('gost-uredi.html', napaka=napaka, gost=gost)
@@ -113,6 +138,9 @@ def uredi_gosta_get(emso):
 
 @post('/gost/uredi/<emso>')
 def uredi_gosta_post(emso):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     novi_emso = request.forms.emso
     ime = request.forms.ime
     priimek = request.forms.priimek
@@ -127,16 +155,37 @@ def uredi_gosta_post(emso):
 
 @post('/gost/brisi/<emso>')
 def brisi_gosta(emso):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     cur.execute("DELETE FROM gost WHERE emso = ?", (emso, ))
     redirect('/gost')
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOSTOP GOSTOV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@get('/dostop_gosta')
+def gost():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    cur = baza.cursor()
+    gosti = cur.execute("""
+        SELECT emso, ime, priimek, drzava, spol, starost FROM gost
+    """)
+    return template('dostop_gosta.html', gosti=gosti, napaka=napaka)
+
+
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Z A P O S L E N I ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/zaposleni')
 def zaposleni():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     zaposleni = cur.execute("""
@@ -147,6 +196,9 @@ def zaposleni():
 
 @post('/zaposleni/brisi/<emso>')
 def brisi_zaposlenega(emso):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     cur.execute("DELETE FROM zaposleni WHERE emso = ?", (emso, ))
@@ -155,12 +207,18 @@ def brisi_zaposlenega(emso):
 
 @get('/zaposleni/dodaj')
 def dodaj_zaposlenega_get():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     return template('zaposleni-dodaj.html', napaka=napaka)
 
 
 @post('/zaposleni/dodaj')
 def dodaj_zaposlenega_post():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     emso = request.forms.emso
     ime = request.forms.ime
     priimek = request.forms.priimek
@@ -175,6 +233,9 @@ def dodaj_zaposlenega_post():
 
 @get('/zaposleni/uredi/<emso>')
 def uredi_zaposlenega_get(emso):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     zaposleni = cur.execute("SELECT emso, ime, priimek, spol, placa, oddelek FROM zaposleni WHERE emso = ?", (emso,)).fetchone()
     return template('zaposleni-uredi.html', zaposleni=zaposleni, napaka=napaka)
@@ -182,6 +243,9 @@ def uredi_zaposlenega_get(emso):
 
 @post('/zaposleni/uredi/<emso>')
 def uredi_zaposlenega_post(emso):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     novi_emso = request.forms.emso
     ime = request.forms.ime
     priimek = request.forms.priimek
@@ -198,6 +262,9 @@ def uredi_zaposlenega_post(emso):
 
 @get('/sobe')
 def sobe():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     sobe = cur.execute("""
@@ -208,6 +275,9 @@ def sobe():
 
 @get('/sobe/pregled/<stevilka>')
 def pregled_rezervacij(stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
     return template('pregled-zasedenosti.html', zasedena=zasedena, stevilka=stevilka, napaka=napaka) 
@@ -216,12 +286,18 @@ def pregled_rezervacij(stevilka):
 
 @get('/sobe/rezerviraj/<stevilka>')
 def rezerviraj_sobo_get(stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
     return template('rezerviraj-sobo.html', zasedena=zasedena, napaka=napaka, stevilka=stevilka)
 
 @post('/sobe/rezerviraj/<stevilka>')
 def rezerviraj_sobo_post(stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     gost_id = request.forms.gost_id
     soba_id = request.forms.soba_id
     datumprihoda = request.forms.datumprihoda
@@ -238,6 +314,9 @@ def rezerviraj_sobo_post(stevilka):
 
 @post('/sobe/brisi/<id>/<stevilka>')
 def rezerviraj_sobo_post(id, stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     cur.execute("DELETE FROM nastanitve WHERE id = ?", (id, ))
@@ -248,6 +327,9 @@ def rezerviraj_sobo_post(id, stevilka):
 
 @get('/hrana')
 def narocila():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     hrana = cur.execute("""
@@ -261,6 +343,9 @@ def narocila():
 # To je treba popraviti, da avtomatsko doda id zaposlenega, ki postreže (ko bojo ustimani usernameji)
 @post('/hrana/postrezi/<id>')
 def postrezi(id):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = NULL WHERE id = ?",(id))
@@ -268,12 +353,18 @@ def postrezi(id):
 
 @get('/hrana/dodaj')
 def dodaj_hrano_get():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None 
     cur = baza.cursor()
     return template('hrana-dodaj.html', napaka=napaka)
 
 @post('/hrana/dodaj')
 def dodaj_hrano_post():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     emso = request.forms.emso
     datum = request.forms.datum
     obrok = request.forms.obrok
@@ -287,6 +378,9 @@ def dodaj_hrano_post():
 
 @get('/ciscenje')
 def ciscenje():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     ciscenje = cur.execute("""
@@ -298,6 +392,9 @@ def ciscenje():
 
 @get('/ciscenje/zgodovina')
 def ciscenje_zgodovina():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     napaka = None
     cur = baza.cursor()
     ciscenje = cur.execute("""
@@ -311,6 +408,9 @@ def ciscenje_zgodovina():
 # Tukaj je treba dodati še, da se avtomatsko napiše emšo uporabnika-čistilke, ki je prijavljena v sistem
 @post('/ciscenje/pocisti/<id>')
 def pocisti(id):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
     from datetime import date
     cur.execute("UPDATE ciscenje SET pocisceno = 1, datum = ?, cistilka_id = '4276ad76-7ff9-476a-85e0-b5b6c0842c1c' WHERE id = ?", 
         (date.today().strftime("%Y-%m-%d"), id))
@@ -318,13 +418,6 @@ def pocisti(id):
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ R E G I S T R A C I J A, P R I J A V A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-def hashGesla(s):
-    m = hashlib.sha256()
-    m.update(s.encode("utf-8"))
-    return m.hexdigest()
-
 
 
 @get('/registracija')
@@ -408,9 +501,13 @@ def prijava_post():
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni1!') 
         redirect('/prijava')
         return
-    response.set_cookie('username', username, path="/", secret=skrivnost)
-    return redirect('/gost')
+    response.set_cookie('username', username, secret=skrivnost)
+    return redirect('/dostop_gosta')
 
+@get('/odjava')
+def odjava_get():
+    response.delete_cookie('username')
+    redirect('/prijava')
 
 
 baza = sqlite3.connect(baza_datoteka, isolation_level=None)
@@ -422,3 +519,15 @@ cur.execute("PRAGMA foreign_keys = ON;")
 
 # reloader=True nam olajša razvoj (ozveževanje sproti - razvoj)
 run(host='localhost', port=8080, reloader=True)
+
+
+
+
+
+
+#težave:
+#       rezervacije se prekrivajo, možno rezervirati v preteklost
+#       username in password zaposlenih (potrebno dodati)
+#       dostop zaposlenih/gostov ---> morajo imeti razlčne vpoglede
+#       izdelati moj profil stran (mogoče tukaj notri možne rezervacije nočitev in prehrane)
+#       odjava gumb
