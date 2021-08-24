@@ -340,14 +340,14 @@ def registracija_post():
         nastaviSporocilo('Uporabnik s tem emšom že obstaja!') 
         redirect('/registracija')
         return
-    cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava,spol, starost, username, password))
+    cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava, spol, starost, username, password))
     nastaviSporocilo('Regitracija uspešna! Vrnite se na prijavo.') 
     return redirect('/prijava')
 
 @post('/prijava')
 def prijava_post():
     username = request.forms.username
-    password = request.forms.password
+    password = hashGesla(request.forms.password) 
     if username is None or password is None:
         nastaviSporocilo('Mankajoče uporabniško ime ali geslo!') 
         redirect('/prijava')
@@ -365,7 +365,7 @@ def prijava_post():
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni1!') 
         redirect('/prijava')
         return
-    response.set_cookie('username', username, path="/", secret=skrivnost)
+#    response.set_cookie('username', username, path="/", secret=skrivnost)
     return redirect('/gost')
 
 

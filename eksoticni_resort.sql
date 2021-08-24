@@ -13,8 +13,8 @@ CREATE TABLE gost (
     drzava         CHAR    NOT NULL,
     spol           CHAR    NOT NULL,
     starost        INTEGER NOT NULL,
-    username       TEXT    UNIQUE,
-    geslo          TEXT    
+    username       CHAR    UNIQUE,
+    geslo          CHAR   
 );
 
 
