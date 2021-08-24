@@ -22,9 +22,9 @@ def uvoziCSV(cur, tabela):
 with sqlite3.connect(baza_datoteka) as baza:
     cur = baza.cursor()
     uvoziSQL(cur, 'eksoticni_resort.sql')
-    uvoziSQL(cur, 'podatki\gost.sql')
     uvoziSQL(cur, 'podatki\zaposleni.sql')
     uvoziSQL(cur, 'podatki\sobe.sql')
     uvoziSQL(cur, 'podatki\\nastanitve.sql')
     uvoziSQL(cur, 'podatki\hrana.sql')
     uvoziSQL(cur, 'podatki\ciscenje.sql')
+    uvoziSQL(cur, 'podatki\gost.sql')
