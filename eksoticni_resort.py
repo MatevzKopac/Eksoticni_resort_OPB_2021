@@ -31,6 +31,7 @@ def daterange(start_date, end_date):
 
 skrivnost = "rODX3ulHw3ZYRdbIVcp1IfJTDn8iQTH6TFaNBgrSkjIulr"
 
+
 def nastaviSporocilo(sporocilo = None):
     # global napakaSporocilo
     staro = request.get_cookie("sporocilo", secret=skrivnost)
@@ -40,6 +41,20 @@ def nastaviSporocilo(sporocilo = None):
         response.set_cookie('sporocilo', sporocilo, path="/", secret=skrivnost)
     return staro 
     
+
+def preveriUporabnika(): 
+    username = request.get_cookie("username", secret=skrivnost)
+    if username:
+        cur = baza.cursor()    
+        uporabni = None
+        try: 
+            uporabnik = cur.execute("SELECT * FROM oseba WHERE username = ?", (username, )).fetchone()
+        except:
+            uporabnik = None
+        if uporabnik: 
+            return uporabnik
+    redirect('/prijava')
+
 
 # SPLETNI NASLOVI
 
@@ -304,6 +319,14 @@ def pocisti(id):
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ R E G I S T R A C I J A, P R I J A V A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+
+def hashGesla(s):
+    m = hashlib.sha256()
+    m.update(s.encode("utf-8"))
+    return m.hexdigest()
+
+
+
 @get('/registracija')
 def registracija():
     napaka = nastaviSporocilo()
@@ -326,6 +349,14 @@ def registracija_post():
     spol = request.forms.spol
     drzava = request.forms.drzava
     starost = request.forms.starost  
+    if password != password2:
+        nastaviSporocilo('Gesli se ne ujemata') 
+        redirect('/registracija')
+        return
+    if len(password) < 4:
+        nastaviSporocilo('Geslo mora vsebovati vsaj štiri znake') 
+        redirect('/registracija')
+        return
     if emso is None or username is None or password is None or password2 is None or ime is None or priimek is None or spol is None or drzava is None or starost is None:
         nastaviSporocilo('Registracija ni možna') 
         redirect('/registracija')
@@ -340,21 +371,33 @@ def registracija_post():
         nastaviSporocilo('Uporabnik s tem emšom že obstaja!') 
         redirect('/registracija')
         return
-    cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava, spol, starost, username, password))
-    nastaviSporocilo('Regitracija uspešna! Vrnite se na prijavo.') 
+    uporabnik = None   
+    try:
+        uporabnik = cur.execute('SELECT * FROM gost WHERE username = ?', (username, )).fetchone()  
+    except:
+        uporabnik = None    
+    if uporabnik is not None:
+        nastaviSporocilo('Username že obstaja!') 
+        redirect('/registracija')
+        return
+    zgostitev = hashGesla(password)    
+    cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava,spol, starost, username, zgostitev))
+    response.set_cookie('username', username, secret=skrivnost)
     return redirect('/prijava')
 
 @post('/prijava')
 def prijava_post():
     username = request.forms.username
     password = hashGesla(request.forms.password) 
+    #password = request.forms.password
     if username is None or password is None:
         nastaviSporocilo('Mankajoče uporabniško ime ali geslo!') 
         redirect('/prijava')
     cur = baza.cursor()
     hgeslo = None
     try:
-        hgeslo = cur.execute('SELECT geslo FROM gost WHERE username = ?', (username, )).fetchone
+        hgeslo = cur.execute('SELECT geslo FROM gost WHERE username = ?', (username, )).fetchone()
+        hgeslo = hgeslo[0]
     except:
         hgeslo = None   
     if hgeslo is None:
@@ -365,7 +408,7 @@ def prijava_post():
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni1!') 
         redirect('/prijava')
         return
-#    response.set_cookie('username', username, path="/", secret=skrivnost)
+    response.set_cookie('username', username, path="/", secret=skrivnost)
     return redirect('/gost')
 
 
