@@ -12,7 +12,9 @@ CREATE TABLE gost (
     priimek        CHAR    NOT NULL,
     drzava         CHAR    NOT NULL,
     spol           CHAR    NOT NULL,
-    starost        INTEGER NOT NULL
+    starost        INTEGER NOT NULL,
+    username       TEXT    UNIQUE,
+    password          TEXT    
 );
 
 
