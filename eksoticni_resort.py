@@ -526,8 +526,7 @@ run(host='localhost', port=8080, reloader=True)
 
 
 #težave:
-#       rezervacije se prekrivajo, možno rezervirati v preteklost
+#       rezervacije se prekrivajo, možno rezervirati v preteklost, gostje drug drugemu brišejo rezervacije
 #       username in password zaposlenih (potrebno dodati)
 #       dostop zaposlenih/gostov ---> morajo imeti razlčne vpoglede
 #       izdelati moj profil stran (mogoče tukaj notri možne rezervacije nočitev in prehrane)
-#       odjava gumb
