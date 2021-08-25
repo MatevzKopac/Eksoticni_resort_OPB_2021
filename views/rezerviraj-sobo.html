@@ -1,6 +1,6 @@
 % setdefault('napaka', '')
 % setdefault('naslov', 'Dodaj novo rezervacijo')
-% rebase('base.html', napaka=napaka, naslov=naslov)
+% rebase('base.html', napaka=napaka, naslov=naslov, tip_zaposlenega = tip_zaposlenega)
 
 <form action="/sobe/rezerviraj/<stevilka>" method="post">
     <div class="form-row">
@@ -42,6 +42,12 @@
         </div>
     </div>
 
+    <input type="checkbox" id="zajtrk" name="zajtrk" value="zajtrk">
+    <label for="zajtrk"> Zajtrk</label><br>
+    <input type="checkbox" id="kosilo" name="kosilo" value="kosilo">
+    <label for="kosilo"> Kosilo</label><br>
+    <input type="checkbox" id="vecerja" name="vecerja" value="vecerja">
+    <label for="vecerja"> Večerja</label>
 
     <div class="form-row d-flex justify-content-end">
         <button class="btn btn-primary" type="submit">

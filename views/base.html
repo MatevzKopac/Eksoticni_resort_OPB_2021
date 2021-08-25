@@ -1,3 +1,5 @@
+%setdefault('tip_zaposlenega', '')
+
 <!doctype html>
 <html lang="sl">
     <head>
@@ -20,18 +22,27 @@
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
               <div class="navbar-nav">
 <!--                <a class="nav-item nav-link active" href="\">Home <span class="sr-only">(current)</span></a> -->
+                % if tip_zaposlenega == 'recepcija' or tip_zaposlenega == 'admin':
                 <a class="nav-item nav-link" href="\gost">Gostje</a>
+                % end
+                % if tip_zaposlenega == 'admin':
                 <a class="nav-item nav-link" href="\zaposleni">Zaposleni</a>
+                % end
+                % if tip_zaposlenega == 'recepcija' or tip_zaposlenega == 'admin':
                 <a class="nav-item nav-link" href="\sobe">Rezervacije</a>
+                % end
+                % if tip_zaposlenega == 'kuhinja' or tip_zaposlenega == 'admin':
                 <a class="nav-item nav-link" href="\hrana">Kuhinja</a>
+                % end
+                % if tip_zaposlenega == 'ciscenje' or tip_zaposlenega == 'admin':
                 <a class="nav-item nav-link" href="\ciscenje">Čiščenje</a>
+                % end
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       Profil
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                         <a class="dropdown-item" href="/uporabnik">Moji podatki</a>
-                        <a class="dropdown-item" href="#">Pravice</a>
                         <a class="dropdown-item" href="\odjava">Odjavi se</a>
                     </div>
                 </li>            

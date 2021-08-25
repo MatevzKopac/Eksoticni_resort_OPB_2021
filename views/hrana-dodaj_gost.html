@@ -3,17 +3,7 @@
 % rebase('base_gost.html', napaka=napaka, naslov=naslov)
 
 <form action="/hrana_gost/dodaj" method="post">
-
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="emso">Emšo gosta</label>
-            <input id="emso" name="emso" type="text" class="form-control" required
-                oninput="this.setCustomValidity('')"
-                oninvalid="this.setCustomValidity('Obvezno polje')"
-                />
-        </div>
-    </div>
-
+    
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="datum">Datum</label>

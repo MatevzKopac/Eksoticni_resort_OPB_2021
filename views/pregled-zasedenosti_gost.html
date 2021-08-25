@@ -7,14 +7,14 @@
 <table id="izpis" class="table table-hover">
   <tr>
     <th>Datum</th>
-    <th>Ime</th>
-    <th>Priimek</th>
+    <th>Uporabniško ime</th>
+
   </tr>
-  %for (id, datum, gost_id, ime, priimek) in zasedena:
+  %for (id, datum, gost_id, ime, priimek, username) in zasedena:
   <tr>
     <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
-    <td>{{ime}}</td>
-    <td>{{priimek}}</td>
+    <td>{{username}}</td>
+
   </tr>
   %end
 </table>

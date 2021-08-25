@@ -1,18 +1,9 @@
 % setdefault('napaka', '')
+% setdefault('stevilka', '1')
 % setdefault('naslov', 'Dodaj novo rezervacijo')
 % rebase('base_gost.html', napaka=napaka, naslov=naslov)
 
 <form action="/sobe_gost/rezerviraj/<stevilka>" method="post">
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="gost_id">Emšo</label>
-            <input id="gost_id" name="gost_id" type="text" class="form-control" required
-                oninput="this.setCustomValidity('')"
-                oninvalid="this.setCustomValidity('Obvezno polje')"
-                />
-        </div>
-    </div>
-
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="soba_id">Številka sobe</label>
@@ -42,6 +33,12 @@
         </div>
     </div>
 
+        <input type="checkbox" id="zajtrk" name="zajtrk" value="zajtrk">
+        <label for="zajtrk"> Zajtrk</label><br>
+        <input type="checkbox" id="kosilo" name="kosilo" value="kosilo">
+        <label for="kosilo"> Kosilo</label><br>
+        <input type="checkbox" id="vecerja" name="vecerja" value="vecerja">
+        <label for="vecerja"> Večerja</label>
 
     <div class="form-row d-flex justify-content-end">
         <button class="btn btn-primary" type="submit">

@@ -1,8 +1,8 @@
 % setdefault('napaka', '')
-% rebase('base.html', napaka=napaka, naslov='Postrežba hrane')
+% rebase('base.html', napaka=napaka, naslov='Postrežba hrane', tip_zaposlenega = tip_zaposlenega)
 % import datetime
 
-% include('orodna-vrstica.html', povezava='/hrana/dodaj', napis="Novo naročilo", stolpci='[0,1,2,5]')
+% include('orodna-vrstica.html', povezava='/hrana/zgodovina', napis="Zgodovina", stolpci='[0,1,2,5]')
 <table id="izpis" class="table table-hover">
   <tr>
     <th>ID</th>
