@@ -1,0 +1,20 @@
+% setdefault('napaka', '')
+% rebase('base_gost.html', napaka=napaka, naslov= 'Soba ' + stevilka)
+
+% import datetime
+
+% include('orodna-vrstica.html', povezava='/sobe_gost/rezerviraj/' + stevilka, napis="Dodaj novo rezervacijo", stolpci='[0,1,2,3]')
+<table id="izpis" class="table table-hover">
+  <tr>
+    <th>Datum</th>
+    <th>Ime</th>
+    <th>Priimek</th>
+  </tr>
+  %for (id, datum, gost_id, ime, priimek) in zasedena:
+  <tr>
+    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{ime}}</td>
+    <td>{{priimek}}</td>
+  </tr>
+  %end
+</table>
