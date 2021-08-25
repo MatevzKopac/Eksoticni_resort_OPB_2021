@@ -17,6 +17,8 @@ static_dir = "./static"
 # Funkcija za pomoč pri štetju dni
 import datetime
 
+
+###PREBERI: podatek username dobiš avtoamtsko s funkcijo username = request.get_cookie("username", secret=skrivnost)####
 def daterange(start_date, end_date):
     list = []
     date_1 = datetime.datetime.strptime(start_date, "%Y-%m-%d")
