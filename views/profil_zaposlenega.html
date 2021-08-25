@@ -1,14 +1,15 @@
 % setdefault('napaka', '')
-% rebase('base_gost.html', napaka=napaka, naslov='Gostje')
+% rebase('base.html', napaka=napaka, naslov='Moji podatki')
+
 
 <table id="izpis" class="table table-hover">
   <tr>
     <th>Emšo</th>
     <th>Ime</th>
     <th>Priimek</th>
-    <th>Država</th>
     <th>Spol</th>
     <th>Starost</th>
+    <th>Oddelek</th>
     <th>Uporabniško ime</th>
   </tr>
   %for (emso, ime, priimek, drzava, spol, starost, username, geslo) in uporabnik:
@@ -22,6 +23,9 @@
     <td>{{username}}</td>
     <td>
       <div class="akcije">
+        <form action="/gost/brisi/{{emso}}" method="post" class="akcija">
+          <a href="#" onclick="this.parentElement.submit()">Briši</a>
+        </form>
         <form action="/gost/uredi/{{emso}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Uredi</a>
         </form>

@@ -497,9 +497,9 @@ def prijava_post():
         return
     response.set_cookie('username', username, secret=skrivnost)
     if hgeslo is None:
-        redirect('/gost')
+        redirect('/uporabnik')
     if geslo is None:
-        redirect('/dostop_gosta')
+        redirect('/uporabnik_gost')
 
 
 @get('/odjava')
@@ -643,13 +643,29 @@ def dodaj_hrano_post():
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROFIL GOSTA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
 
 
-get('/uporabnik')
+@get('/uporabnik_gost')
 def uporabnik():
-    gost = preveriUporabnika()
+    uporabnik = preveriUporabnika()
     if gost is None: 
         return
     napaka = nastaviSporocilo()
-    return template('profil_uporabnika.html', gost=gost, napaka=napaka,)
+    username = request.get_cookie("username", secret=skrivnost)
+    uporabnik = cur.execute("SELECT * FROM gost WHERE username = ?", (username, ))
+    return template('profil_uporabnika.html', uporabnik=uporabnik, napaka=napaka,)
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROFIL ZAPOSLENEGA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
+
+
+@get('/uporabnik')
+def uporabnik():
+    uporabnik = preveriZaposlenega()
+    if gost is None: 
+        return
+    napaka = nastaviSporocilo()
+    username = request.get_cookie("username", secret=skrivnost)
+    uporabnik = cur.execute("SELECT * FROM zaposleni WHERE username = ?", (username, ))
+    return template('profil_zaposlenega.html', uporabnik=uporabnik, napaka=napaka,)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
