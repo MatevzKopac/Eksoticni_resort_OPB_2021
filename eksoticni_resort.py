@@ -481,26 +481,47 @@ def registracija_post():
 @post('/prijava')
 def prijava_post():
     username = request.forms.username
-    password = hashGesla(request.forms.password) 
-    #password = request.forms.password
+    #password = hashGesla(request.forms.password) 
+    password = request.forms.password
     if username is None or password is None:
         nastaviSporocilo('Mankajoče uporabniško ime ali geslo!') 
         redirect('/prijava')
     cur = baza.cursor()
     hgeslo = None
+    geslo = None
     try:
         hgeslo = cur.execute('SELECT geslo FROM gost WHERE username = ?', (username, )).fetchone()
         hgeslo = hgeslo[0]
     except:
-        hgeslo = None   
-    if hgeslo is None:
+        hgeslo = None
+          
+    try:
+        geslo = cur.execute('SELECT geslo FROM zaposleni WHERE username = ?', (username, )).fetchone()
+        geslo = geslo[0]
+    except:
+        geslo = None    
+    if hgeslo is None and geslo is None:
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni0!') 
         redirect('/prijava')
         return
-    if password != hgeslo:
+    if hashGesla(password) != hgeslo and password != geslo:
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni1!') 
         redirect('/prijava')
         return
+    #geslo = None
+    #try:
+    #    geslo = cur.execute('SELECT geslo FROM zaposleni WHERE username = ?', (username, )).fetchone()
+    #    geslo = geslo[0]
+    #except:
+    #    geslo = None   
+    #if geslo is None:
+    #    nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni2!') 
+    #    redirect('/prijava')
+    #    return
+    #if password != geslo:
+    #    nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni3!') 
+    #    redirect('/prijava')
+    #    return    
     response.set_cookie('username', username, secret=skrivnost)
     return redirect('/dostop_gosta')
 
@@ -526,7 +547,7 @@ run(host='localhost', port=8080, reloader=True)
 
 
 #težave:
-#       rezervacije se prekrivajo, možno rezervirati v preteklost, gostje drug drugemu brišejo rezervacije
+#       rezervacije se prekrivajo, možno rezervirati v preteklost, gostje drug drugemu brišejo rezervacije(brišejo samo zaposleni)
 #       username in password zaposlenih (potrebno dodati)
 #       dostop zaposlenih/gostov ---> morajo imeti razlčne vpoglede
 #       izdelati moj profil stran (mogoče tukaj notri možne rezervacije nočitev in prehrane)
