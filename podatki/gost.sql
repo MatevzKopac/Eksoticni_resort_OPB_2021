@@ -1,4 +1,3 @@
-insert into gost (emso, ime, priimek, drzava, spol, starost, username, geslo) values ('123456789', 'TEST', 'PRIJAVA', 'KOSOVO', 'M', 35, 'aa', 'bb' );
 insert into gost (emso, ime, priimek, drzava, spol, starost) values ('08ea75b5-d745-4a09-9eeb-99be9d3310c0', 'George', 'Bernardinelli', 'France', 'F', 17);
 insert into gost (emso, ime, priimek, drzava, spol, starost) values ('129a66fa-1624-4540-a359-51039e375e04', 'Roderic', 'Klimczak', 'Colombia', 'M', 77);
 insert into gost (emso, ime, priimek, drzava, spol, starost) values ('dea89cdd-b9da-4161-bcb6-d634d78782c4', 'Lennard', 'Farrah', 'Indonesia', 'M', 67);
