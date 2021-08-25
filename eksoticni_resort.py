@@ -546,8 +546,129 @@ run(host='localhost', port=8080, reloader=True)
 
 
 
+
+
+
 #težave:
 #       rezervacije se prekrivajo, možno rezervirati v preteklost, gostje drug drugemu brišejo rezervacije(brišejo samo zaposleni)
 #       username in password zaposlenih (potrebno dodati)
 #       dostop zaposlenih/gostov ---> morajo imeti razlčne vpoglede
 #       izdelati moj profil stran (mogoče tukaj notri možne rezervacije nočitev in prehrane)
+
+
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ STRANI ZA GOSTE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+@get('/sobe_gost')
+def sobe_gost():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    cur = baza.cursor()
+    sobe_gost = cur.execute("""
+        SELECT stevilka, cena, postelje FROM sobe
+    """)
+    return template('sobe_gost.html', sobe_gost=sobe_gost, napaka=napaka)
+
+
+@get('/sobe_gost/pregled/<stevilka>')
+def pregled_rezervacij(stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
+    return template('pregled-zasedenosti_gost.html', zasedena=zasedena, stevilka=stevilka, napaka=napaka) 
+
+
+
+@get('/sobe_gost/rezerviraj/<stevilka>')
+def rezerviraj_sobo_get(stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
+    return template('rezerviraj-sobo_gost.html', zasedena=zasedena, napaka=napaka, stevilka=stevilka)
+
+@post('/sobe_gost/rezerviraj/<stevilka>')
+def rezerviraj_sobo_post(stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    gost_id = request.forms.gost_id
+    soba_id = request.forms.soba_id
+    datumprihoda = request.forms.datumprihoda
+    datumodhoda = request.forms.datumodhoda
+
+    seznam = daterange(datumprihoda, datumodhoda)
+
+    cur = baza.cursor()
+
+    for datum in seznam:    
+        cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
+            (gost_id, datum, soba_id))
+    redirect('/sobe_gost/pregled/' + soba_id)
+
+@post('/sobe_gost/brisi/<id>/<stevilka>')
+def rezerviraj_sobo_post(id, stevilka):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    cur = baza.cursor()
+    cur.execute("DELETE FROM nastanitve WHERE id = ?", (id, ))
+    redirect('/sobe_gost/pregled/' + stevilka)
+
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ H R A N A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@get('/hrana')
+def narocila():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    cur = baza.cursor()
+    hrana = cur.execute("""
+        SELECT DISTINCT hrana.id, hrana.gost_id, gost.ime, gost.priimek, nastanitve.soba_id, hrana.datum, tip_obroka FROM hrana 
+        INNER JOIN gost ON hrana.gost_id = gost.emso 
+        INNER JOIN nastanitve ON (hrana.gost_id = nastanitve.gost_id AND hrana.datum = nastanitve.datum)
+        WHERE (pripravljena == 0)
+    """)
+    return template('hrana.html', hrana=hrana, napaka=napaka)
+
+# To je treba popraviti, da avtomatsko doda id zaposlenega, ki postreže (ko bojo ustimani usernameji)
+@post('/hrana/postrezi/<id>')
+def postrezi(id):
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    cur = baza.cursor()
+    cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = NULL WHERE id = ?",(id))
+    redirect('/hrana')
+
+@get('/hrana/dodaj')
+def dodaj_hrano_get():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None 
+    cur = baza.cursor()
+    return template('hrana-dodaj.html', napaka=napaka)
+
+@post('/hrana/dodaj')
+def dodaj_hrano_post():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    emso = request.forms.emso
+    datum = request.forms.datum
+    obrok = request.forms.obrok
+    cur = baza.cursor()
+    cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+         (emso, datum, obrok))
+    redirect('/hrana')
