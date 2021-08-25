@@ -1,0 +1,39 @@
+% setdefault('napaka', '')
+% setdefault('naslov', 'Spremeni geslo')
+% rebase('base_prijava.html', napaka=napaka, naslov=naslov)
+
+<form action="/spremeni_geslo" method="post" style="padding-bottom: 20px;" autocomplete="off">
+
+    
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="password">Geslo</label>
+            <input id="password" name="password" type="password" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+            <small id="password" class="form-text text-muted">Novo geslo.</small>
+        </div>
+    </div>
+
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="password2">Še enkrat vnesi geslo</label>
+            <input id="password2" name="password2" type="password" class="form-control" required
+                oninput="this.setCustomValidity('')"
+                oninvalid="this.setCustomValidity('Obvezno polje')"
+                />
+            <small id="password2" class="form-text text-muted">Gesli se morata ujemati.</small>
+        </div>
+    </div>
+
+    <div class="form-row d-flex justify-content-start">
+        <button class="btn btn-primary" type="submit">
+            Spremeni geslo
+        </button>
+    </div>
+</form>
+
+
+

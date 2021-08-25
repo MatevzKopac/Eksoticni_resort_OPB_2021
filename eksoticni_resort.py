@@ -46,7 +46,7 @@ def preveriUporabnika():
     username = request.get_cookie("username", secret=skrivnost)
     if username:
         cur = baza.cursor()    
-        uporabni = None
+        uporabnik = None
         try: 
             uporabnik = cur.execute("SELECT * FROM gost WHERE username = ?", (username, )).fetchone()
         except:
@@ -60,7 +60,7 @@ def preveriZaposlenega():
     username = request.get_cookie("username", secret=skrivnost)
     if username:
         cur = baza.cursor()    
-        uporabni = None
+        uporabnik = None
         try: 
             uporabnik = cur.execute("SELECT * FROM zaposleni WHERE username = ?", (username, )).fetchone()
         except:
@@ -654,7 +654,7 @@ def uporabnik():
     return template('profil_uporabnika.html', uporabnik=uporabnik, napaka=napaka,)
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROFIL ZAPOSLENEGA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROFIL ZAPOSLENEGA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 @get('/uporabnik')
@@ -666,6 +666,49 @@ def uporabnik():
     username = request.get_cookie("username", secret=skrivnost)
     uporabnik = cur.execute("SELECT * FROM zaposleni WHERE username = ?", (username, ))
     return template('profil_zaposlenega.html', uporabnik=uporabnik, napaka=napaka,)
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~SPREMEMBA GESLA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@get('/spremeni_geslo')
+def spremeni_geslo():
+    napaka = nastaviSporocilo()
+    return template('spremeni_geslo.html', napaka=napaka)
+
+@post('/spremeni_geslo')
+def spremeni_geslo():
+    username = request.get_cookie("username", secret=skrivnost)
+    password = request.forms.password
+    password2 = request.forms.password2
+    if password != password2:
+        nastaviSporocilo('Gesli se ne ujemata') 
+        redirect('/spremeni_geslo')
+        return
+    if len(password) < 4:
+        nastaviSporocilo('Geslo mora vsebovati vsaj štiri znake') 
+        redirect('/spremeni_geslo')
+        return 
+    cur = baza.cursor()
+    if username:    
+        uporabnik1 = None
+        uporabnik2 = None
+        try: 
+            uporabnik1 = cur.execute("SELECT * FROM zaposleni WHERE username = ?", (username, )).fetchone()
+        except:
+            uporabnik1 = None
+        try: 
+            uporabnik2 = cur.execute("SELECT * FROM gost WHERE username = ?", (username, )).fetchone()
+        except:
+            uporabnik2 = None    
+        if uporabnik1: 
+            cur.execute("UPDATE zaposleni SET  geslo = ? WHERE username = ?", (password ,username))
+            return redirect('/prijava')  
+        if uporabnik2:
+            zgostitev = hashGesla(password)
+            cur.execute("UPDATE gost SET  geslo = ? WHERE username = ?", (zgostitev ,username))     
+            return redirect('/prijava')
+    nastaviSporocilo('Obvezna registracija') 
+    redirect('/registracija')    
+
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
