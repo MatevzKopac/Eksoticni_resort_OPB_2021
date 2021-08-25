@@ -89,7 +89,7 @@ def hashGesla(s):
 
 @get('/gost')
 def gost():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -102,7 +102,7 @@ def gost():
 
 @get('/gost/dodaj')
 def dodaj_gosta_get():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -111,7 +111,7 @@ def dodaj_gosta_get():
 
 @post('/gost/dodaj')
 def dodaj_gosta_post():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     emso = request.forms.emso
@@ -128,7 +128,7 @@ def dodaj_gosta_post():
 
 @get('/gost/uredi/<emso>')
 def uredi_gosta_get(emso):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -138,7 +138,7 @@ def uredi_gosta_get(emso):
 
 @post('/gost/uredi/<emso>')
 def uredi_gosta_post(emso):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     novi_emso = request.forms.emso
@@ -155,7 +155,7 @@ def uredi_gosta_post(emso):
 
 @post('/gost/brisi/<emso>')
 def brisi_gosta(emso):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -170,7 +170,7 @@ def brisi_gosta(emso):
 
 @get('/zaposleni')
 def zaposleni():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -183,7 +183,7 @@ def zaposleni():
 
 @post('/zaposleni/brisi/<emso>')
 def brisi_zaposlenega(emso):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -194,7 +194,7 @@ def brisi_zaposlenega(emso):
 
 @get('/zaposleni/dodaj')
 def dodaj_zaposlenega_get():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -203,7 +203,7 @@ def dodaj_zaposlenega_get():
 
 @post('/zaposleni/dodaj')
 def dodaj_zaposlenega_post():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     emso = request.forms.emso
@@ -220,7 +220,7 @@ def dodaj_zaposlenega_post():
 
 @get('/zaposleni/uredi/<emso>')
 def uredi_zaposlenega_get(emso):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -230,7 +230,7 @@ def uredi_zaposlenega_get(emso):
 
 @post('/zaposleni/uredi/<emso>')
 def uredi_zaposlenega_post(emso):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     novi_emso = request.forms.emso
@@ -249,7 +249,7 @@ def uredi_zaposlenega_post(emso):
 
 @get('/sobe')
 def sobe():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -261,7 +261,7 @@ def sobe():
 
 @get('/sobe/pregled/<stevilka>')
 def pregled_rezervacij(stevilka):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -272,7 +272,7 @@ def pregled_rezervacij(stevilka):
 
 @get('/sobe/rezerviraj/<stevilka>')
 def rezerviraj_sobo_get(stevilka):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -281,7 +281,7 @@ def rezerviraj_sobo_get(stevilka):
 
 @post('/sobe/rezerviraj/<stevilka>')
 def rezerviraj_sobo_post(stevilka):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     gost_id = request.forms.gost_id
@@ -300,7 +300,7 @@ def rezerviraj_sobo_post(stevilka):
 
 @post('/sobe/brisi/<id>/<stevilka>')
 def rezerviraj_sobo_post(id, stevilka):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -313,7 +313,7 @@ def rezerviraj_sobo_post(id, stevilka):
 
 @get('/hrana')
 def narocila():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -329,7 +329,7 @@ def narocila():
 # To je treba popraviti, da avtomatsko doda id zaposlenega, ki postreže (ko bojo ustimani usernameji)
 @post('/hrana/postrezi/<id>')
 def postrezi(id):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -339,7 +339,7 @@ def postrezi(id):
 
 @get('/hrana/dodaj')
 def dodaj_hrano_get():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None 
@@ -348,7 +348,7 @@ def dodaj_hrano_get():
 
 @post('/hrana/dodaj')
 def dodaj_hrano_post():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     emso = request.forms.emso
@@ -364,7 +364,7 @@ def dodaj_hrano_post():
 
 @get('/ciscenje')
 def ciscenje():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -378,7 +378,7 @@ def ciscenje():
 
 @get('/ciscenje/zgodovina')
 def ciscenje_zgodovina():
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
@@ -394,7 +394,7 @@ def ciscenje_zgodovina():
 # Tukaj je treba dodati še, da se avtomatsko napiše emšo uporabnika-čistilke, ki je prijavljena v sistem
 @post('/ciscenje/pocisti/<id>')
 def pocisti(id):
-    uporabnik = preveriUporabnika()
+    uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     from datetime import date
@@ -494,22 +494,12 @@ def prijava_post():
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni1!') 
         redirect('/prijava')
         return
-    #geslo = None
-    #try:
-    #    geslo = cur.execute('SELECT geslo FROM zaposleni WHERE username = ?', (username, )).fetchone()
-    #    geslo = geslo[0]
-    #except:
-    #    geslo = None   
-    #if geslo is None:
-    #    nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni2!') 
-    #    redirect('/prijava')
-    #    return
-    #if password != geslo:
-    #    nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni3!') 
-    #    redirect('/prijava')
-    #    return    
     response.set_cookie('username', username, secret=skrivnost)
-    return redirect('/dostop_gosta')
+    if hgeslo is None:
+        redirect('/gost')
+    if geslo is None:
+        redirect('/dostop_gosta')
+
 
 @get('/odjava')
 def odjava_get():
@@ -519,7 +509,7 @@ def odjava_get():
 
 #težave:
 #       rezervacije se prekrivajo, možno rezervirati v preteklost, gostje drug drugemu brišejo rezervacije(brišejo samo zaposleni)
-#       username in password zaposlenih (potrebno dodati)
+#       username in password   zaposlenih (potrebno dodati)
 #       dostop zaposlenih/gostov ---> morajo imeti razlčne vpoglede
 #       izdelati moj profil stran (mogoče tukaj notri možne rezervacije nočitev in prehrane)
 
