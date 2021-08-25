@@ -163,19 +163,6 @@ def brisi_gosta(emso):
     cur.execute("DELETE FROM gost WHERE emso = ?", (emso, ))
     redirect('/gost')
 
-#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOSTOP GOSTOV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-@get('/dostop_gosta')
-def gost():
-    uporabnik = preveriUporabnika()
-    if uporabnik is None: 
-        return
-    napaka = None
-    cur = baza.cursor()
-    gosti = cur.execute("""
-        SELECT emso, ime, priimek, drzava, spol, starost FROM gost
-    """)
-    return template('dostop_gosta.html', gosti=gosti, napaka=napaka)
-
 
 
 
@@ -271,7 +258,6 @@ def sobe():
         SELECT stevilka, cena, postelje FROM sobe
     """)
     return template('sobe.html', sobe=sobe, napaka=napaka)
-
 
 @get('/sobe/pregled/<stevilka>')
 def pregled_rezervacij(stevilka):
@@ -531,46 +517,45 @@ def odjava_get():
     redirect('/prijava')
 
 
-baza = sqlite3.connect(baza_datoteka, isolation_level=None)
-baza.set_trace_callback(print) # izpis sql stavkov v terminal (za debugiranje pri razvoju)
-# zapoved upoštevanja omejitev FOREIGN KEY
-cur = baza.cursor()
-cur.execute("PRAGMA foreign_keys = ON;")
-
-
-# reloader=True nam olajša razvoj (ozveževanje sproti - razvoj)
-run(host='localhost', port=8080, reloader=True)
-
-
-
-
-
-
-
-
-
 #težave:
 #       rezervacije se prekrivajo, možno rezervirati v preteklost, gostje drug drugemu brišejo rezervacije(brišejo samo zaposleni)
 #       username in password zaposlenih (potrebno dodati)
 #       dostop zaposlenih/gostov ---> morajo imeti razlčne vpoglede
 #       izdelati moj profil stran (mogoče tukaj notri možne rezervacije nočitev in prehrane)
 
-
-
-#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ STRANI ZA GOSTE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
-@get('/sobe_gost')
-def sobe_gost():
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOSTOP GOSTOV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+@get('/dostop_gosta')
+def gost():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
     napaka = None
     cur = baza.cursor()
-    sobe_gost = cur.execute("""
+    gosti = cur.execute("""
+        SELECT emso, ime, priimek, drzava, spol, starost FROM gost
+    """)
+    return template('dostop_gosta.html', gosti=gosti, napaka=napaka)
+
+
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ STRANI ZA GOSTE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SOBE ZA GOSTE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@get('/sobe_gost')
+def sobe():
+    uporabnik = preveriUporabnika()
+    if uporabnik is None: 
+        return
+    napaka = None
+    cur = baza.cursor()
+    sobe = cur.execute("""
         SELECT stevilka, cena, postelje FROM sobe
     """)
-    return template('sobe_gost.html', sobe_gost=sobe_gost, napaka=napaka)
+    return template('sobe_gost.html', sobe=sobe, napaka=napaka)
+
 
 
 @get('/sobe_gost/pregled/<stevilka>')
@@ -612,20 +597,9 @@ def rezerviraj_sobo_post(stevilka):
             (gost_id, datum, soba_id))
     redirect('/sobe_gost/pregled/' + soba_id)
 
-@post('/sobe_gost/brisi/<id>/<stevilka>')
-def rezerviraj_sobo_post(id, stevilka):
-    uporabnik = preveriUporabnika()
-    if uporabnik is None: 
-        return
-    napaka = None
-    cur = baza.cursor()
-    cur.execute("DELETE FROM nastanitve WHERE id = ?", (id, ))
-    redirect('/sobe_gost/pregled/' + stevilka)
+#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HRANA ZA GOSTE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-#   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ H R A N A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-@get('/hrana')
+@get('/hrana_gost')
 def narocila():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
@@ -638,10 +612,10 @@ def narocila():
         INNER JOIN nastanitve ON (hrana.gost_id = nastanitve.gost_id AND hrana.datum = nastanitve.datum)
         WHERE (pripravljena == 0)
     """)
-    return template('hrana.html', hrana=hrana, napaka=napaka)
+    return template('hrana_gost.html', hrana=hrana, napaka=napaka)
 
 # To je treba popraviti, da avtomatsko doda id zaposlenega, ki postreže (ko bojo ustimani usernameji)
-@post('/hrana/postrezi/<id>')
+@post('/hrana_gost/postrezi/<id>')
 def postrezi(id):
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
@@ -649,18 +623,18 @@ def postrezi(id):
     napaka = None
     cur = baza.cursor()
     cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = NULL WHERE id = ?",(id))
-    redirect('/hrana')
+    redirect('/hrana_gost')
 
-@get('/hrana/dodaj')
+@get('/hrana_gost/dodaj')
 def dodaj_hrano_get():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
     napaka = None 
     cur = baza.cursor()
-    return template('hrana-dodaj.html', napaka=napaka)
+    return template('hrana-dodaj_gost.html', napaka=napaka)
 
-@post('/hrana/dodaj')
+@post('/hrana_gost/dodaj')
 def dodaj_hrano_post():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
@@ -671,4 +645,43 @@ def dodaj_hrano_post():
     cur = baza.cursor()
     cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
          (emso, datum, obrok))
-    redirect('/hrana')
+    redirect('/hrana_gost')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
+baza = sqlite3.connect(baza_datoteka, isolation_level=None)
+baza.set_trace_callback(print) # izpis sql stavkov v terminal (za debugiranje pri razvoju)
+# zapoved upoštevanja omejitev FOREIGN KEY
+cur = baza.cursor()
+cur.execute("PRAGMA foreign_keys = ON;")
+
+
+# reloader=True nam olajša razvoj (ozveževanje sproti - razvoj)
+run(host='localhost', port=8080, reloader=True)
+
+
+
+
+
+
+
+
+
+
