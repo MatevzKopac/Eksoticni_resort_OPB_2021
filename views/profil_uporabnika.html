@@ -1,0 +1,73 @@
+% setdefault('napaka', '')
+% setdefault('naslov', 'Dodaj novo rezervacijo')
+% rebase('base_gost.html', napaka=napaka, naslov=naslov)
+
+<form action="/gost/dodaj" method="post">
+  <div class="form-row">
+      <div class="form-group col-md-6">
+          <label for="emso">Emšo</label>
+          <input id="emso" name="emso" type="text" class="form-control" required
+              oninput="this.setCustomValidity('')"
+              oninvalid="this.setCustomValidity('Obvezno polje')"
+              />
+      </div>
+  </div>
+
+  <div class="form-row">
+      <div class="form-group col-md-6">
+          <label for="ime">Ime</label>
+          <input id="ime" name="ime" type="text" class="form-control" required
+              oninput="this.setCustomValidity('')"
+              oninvalid="this.setCustomValidity('Obvezno polje')"
+              />
+
+      </div>
+  </div>
+  <div class="form-row">
+      <div class="form-group col-md-6">
+          <label for="priimek">Priimek</label>
+          <input id="priimek" name="priimek" type="text" class="form-control" required
+              oninput="this.setCustomValidity('')"
+              oninvalid="this.setCustomValidity('Obvezno polje')"
+              />
+
+      </div>
+  </div>
+
+  <div class="form-row">
+      <div class="form-group col-md-6">
+              <label for="spol">Spol</label> <br>
+              <input type="radio" id="m" name="spol" value="M">
+              <label for="m">M</label><br>
+              <input type="radio" id="f" name="spol" value="F">
+              <label for="f">F</label><br>
+      </div>
+  </div>
+
+  <div class="form-row">
+      <div class="form-group col-md-6">
+          <label for="drzava">Država</label>
+          <input id="drzava" name="drzava" type="text" class="form-control" required
+              oninput="this.setCustomValidity('')"
+              oninvalid="this.setCustomValidity('Obvezno polje')"
+              />
+
+      </div>
+  </div>
+
+  <div class="form-row">
+      <div class="form-group col-md-6">
+          <label for="starost">Starost</label>
+          <input id="starost" name="starost" type="number" class="form-control" required min="10" max="80"
+              oninput="this.setCustomValidity('')"
+              oninvalid="this.setCustomValidity('Vnesi število med 10 in 80')"
+              />
+      </div>
+  </div>
+
+  <div class="form-row d-flex justify-content-end">
+      <button class="btn btn-primary" type="submit">
+          Dodaj
+      </button>
+  </div>
+</form>

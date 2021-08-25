@@ -55,6 +55,7 @@ def preveriUporabnika():
             return uporabnik
     redirect('/prijava')
 
+
 def preveriZaposlenega(): 
     username = request.get_cookie("username", secret=skrivnost)
     if username:
@@ -649,20 +650,16 @@ def dodaj_hrano_post():
 
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROFIL GOSTA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+get('/uporabnik')
+def uporabnik():
+    gost = preveriUporabnika()
+    if gost is None: 
+        return
+    napaka = nastaviSporocilo()
+    return template('profil_uporabnika.html', gost=gost, napaka=napaka,)
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
