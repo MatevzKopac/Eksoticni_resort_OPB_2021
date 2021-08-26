@@ -11,7 +11,7 @@ def uvoziSQL(cur, datoteka):
 
 def uvoziCSV(cur, tabela):
     with open('podatki/{0}.csv'.format(tabela)) as csvfile:
-        podatki = csv.reader(csvfile)
+        podatki = csv.reader(csvfile)   
         vsiPodatki = [vrstica for vrstica in podatki]
         glava = vsiPodatki[0]
         vrstice = vsiPodatki[1:]

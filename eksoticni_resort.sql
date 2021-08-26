@@ -33,7 +33,8 @@ CREATE TABLE zaposleni (
     placa       INTEGER NOT NULL,
     oddelek     CHAR    NOT NULL,
     username       CHAR    UNIQUE,
-    geslo          CHAR    
+    geslo          CHAR,
+    stanje      CHAR    
 );
 
 
