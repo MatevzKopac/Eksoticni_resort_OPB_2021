@@ -1,0 +1,26 @@
+% setdefault('napaka', '')
+% rebase('base.html', napaka=napaka, naslov= 'Rezervacije gosta: ' + ime_gosta[1] + ' ' + ime_gosta[2], tip_zaposlenega=tip_zaposlenega)
+
+% import datetime
+
+% include('orodna-vrstica.html', povezava='/sobe_gost/rezerviraj', napis="", stolpci='[0,1,2,3]')
+<table id="izpis" class="table table-hover">
+  <tr>
+    <th>Datum</th>
+    <th>Soba</th>
+    <th>Akcije</th>
+  </tr>
+  %for (id, datum, soba) in rezervacije:
+  <tr>
+    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{soba}}</td>
+    <td>
+        <div class="akcije">
+            <form action="/gost/rezervacije/brisi/{{ime_gosta[0]}}/{{id}}" method="post" class="akcija">
+              <a href="#" onclick="this.parentElement.submit()">Briši</a>
+            </form>
+        </div>
+    </td>
+  </tr>
+  %end
+</table>
