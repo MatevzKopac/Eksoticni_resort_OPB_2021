@@ -8,12 +8,18 @@
     <th>Številka sobe</th>
     <th>Datum</th>
     <th>Tip obroka</th>
+    <th>Akcije</th>
   </tr>
-  %for (soba_id, datum, tip_obroka) in hrana:
+  %for (id, soba_id, datum, tip_obroka) in hrana:
   <tr>
     <td>{{soba_id}}</td>
     <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
     <td>{{tip_obroka}}</td>
+    <td>
+      <form action="/hrana_gost/izbrisi/{{id}}" method="post" class="akcija">
+        <a href="#" onclick="this.parentElement.submit()">Prekliči naročilo</a>
+      </form>
+    </td>
   </tr>
   %end
 </table>

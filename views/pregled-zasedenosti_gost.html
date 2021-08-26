@@ -13,7 +13,13 @@
   %for (id, datum, gost_id, ime, priimek, username) in zasedena:
   <tr>
     <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
-    <td>{{username}}</td>
+    <td>
+      % if username != None:
+      {{username}}
+      % else:
+      neregistriran uporabnik
+      % end
+    </td>
 
   </tr>
   %end
