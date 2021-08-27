@@ -1,14 +1,29 @@
 from re import A
 from tempfile import SpooledTemporaryFile
 from bottle import *
-import sqlite3
 import hashlib
+
+from bottleext import *
+
+#podatki za povezavo na bazo
+import auth_public as auth
+
+#psycopg2 za priklop na bazo
+import psycopg2, psycopg2.extensions, psycopg2.extras 
+psycopg2.extensions.register_type(psycopg2.extensions.UNICODE)
 
 
 # Baza
 baza_datoteka = 'eksoticni_resort.db'
 debug(True)  # za izpise pri razvoju
 static_dir = "./static"
+
+
+#Privzete nastavitve za Bottle
+SERVER_PORT = os.environ.get('BOTTLE_PORT', 8080)
+RELOADER = os.environ.get('BOTTLE_RELOADER', True)
+ROOT = os.environ.get('BOTTLE_ROOT', '/') 
+DB_PORT = os.environ.get('POSTGRES_PORT', 5432)
 
 
 # Funkcija za pomoč pri štetju dni
@@ -47,7 +62,8 @@ def preveriUporabnika():
         cur = baza.cursor()    
         uporabnik = None
         try: 
-            uporabnik = cur.execute("SELECT * FROM gost WHERE username = ?", (username, )).fetchone()
+            cur.execute("SELECT * FROM gost WHERE username = %s", (username, ))
+            uporabnik = cur.fetchone()
         except:
             uporabnik = None
         if uporabnik: 
@@ -60,7 +76,8 @@ def preveriZaposlenega():
         cur = baza.cursor()    
         uporabnik = None
         try: 
-            uporabnik = cur.execute("SELECT * FROM zaposleni WHERE username = ?", (username, )).fetchone()
+            cur.execute("SELECT * FROM zaposleni WHERE username = %s", (username, ))
+            uporabnik = cur.fetchone()
         except:
             uporabnik = None
         if uporabnik: 
@@ -105,7 +122,10 @@ def gost():
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('gost.html', gosti=gosti, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -119,7 +139,10 @@ def dodaj_gosta_get():
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('gost-dodaj.html', napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -137,7 +160,8 @@ def dodaj_gosta_post():
     starost = request.forms.starost
 
     cur = baza.cursor()
-    uniqueemso = cur.execute('SELECT * FROM gost WHERE emso = ?', (emso, )).fetchone()
+    cur.execute('SELECT * FROM gost WHERE emso = %s', (emso, ))
+    uniqueemso = cur.fetchone()
 
     if uniqueemso != None:
         nastaviSporocilo("Gost s tem emšom je že v sistemu")
@@ -145,8 +169,9 @@ def dodaj_gosta_post():
 
     else:
         cur = baza.cursor()
-        cur.execute("INSERT INTO gost (emso, ime, priimek, drzava, spol, starost) VALUES (?, ?, ?, ?, ?, ?)", 
+        cur.execute("INSERT INTO gost (emso, ime, priimek, drzava, spol, starost) VALUES (%s, %s, %s, %s, %s, %s)", 
              (emso, ime, priimek, drzava, spol, starost))
+        baza.commit()
         redirect('/gost')
 
 
@@ -156,12 +181,16 @@ def uredi_gosta_get(emso):
     if uporabnik is None: 
         return
     napaka = nastaviSporocilo()
-    cur = baza.cursor()  
-    gost = cur.execute("SELECT emso, ime, priimek, drzava, spol, starost FROM gost WHERE emso = ?", (emso,)).fetchone()
+    cur = baza.cursor()
+    cur.execute("SELECT emso, ime, priimek, drzava, spol, starost FROM gost WHERE emso = %s", (emso,)).fetchone()
+    gost = cur.fetchone()
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('gost-uredi.html', napaka=napaka, gost=gost, tip_zaposlenega = tip_zaposlenega)
 
@@ -177,8 +206,9 @@ def uredi_gosta_post(emso):
     spol = request.forms.spol
     starost = request.forms.starost
     cur = baza.cursor()
-    cur.execute("UPDATE gost SET ime = ?, priimek = ?, drzava = ?, spol = ?, starost = ? WHERE emso = ?", 
+    cur.execute("UPDATE gost SET ime = %s, priimek = %s, drzava = %s, spol = %s, starost = %s WHERE emso = %s", 
         (ime, priimek, drzava, spol, starost, emso))
+    baza.commit()
     redirect('/gost')
 
 
@@ -190,7 +220,8 @@ def brisi_gosta(emso):
     napaka = None
     cur = baza.cursor()
     try:
-        cur.execute("DELETE FROM gost WHERE emso = ?", (emso, ))
+        cur.execute("DELETE FROM gost WHERE emso = %s", (emso, ))
+        baza.commit()
         nastaviSporocilo()
         redirect('/gost')
     except:
@@ -205,27 +236,36 @@ def rezervacije_gosta(id):
         return    
     napaka = nastaviSporocilo()
     username = request.get_cookie("username", secret=skrivnost)
-    cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
 
-    ime_gosta = cur.execute("SELECT emso, ime, priimek FROM gost WHERE emso = ?", (id,)).fetchone()
-    rezervacije = cur.execute("SELECT id, datum, soba_id FROM nastanitve WHERE gost_id = ? ORDER BY datum ASC", (id,)).fetchall()
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
+
+    cur = baza.cursor()
+    cur.execute("SELECT emso, ime, priimek FROM gost WHERE emso = %s", (id,))
+    ime_gosta = cur.fetchone()
+
+    cur = baza.cursor()
+    cur.execute("SELECT id, datum, soba_id FROM nastanitve WHERE gost_id = %s ORDER BY datum ASC", (id,)).fetchall()
+    rezervacije = cur.fetchall()
+
     return template('rezervacije_gosta.html', rezervacije=rezervacije, napaka=napaka, ime_gosta=ime_gosta, tip_zaposlenega=tip_zaposlenega) 
 
 
 @post('/gost/rezervacije/brisi/<id>/<brisanje>')
 def brisi_rezervacijo(id, brisanje):
     cur = baza.cursor()
-    datum = cur.execute("SELECT datum FROM nastanitve WHERE id = ?", (brisanje, )).fetchone()[0]
-    cur = baza.cursor()
-    soba = cur.execute("SELECT soba_id FROM nastanitve WHERE id = ?", (brisanje, )).fetchone()[0]
+    cur.execute("SELECT datum FROM nastanitve WHERE id = %s", (brisanje, ))
+    datum = cur.fetchone()[0]
+
     uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
     napaka = None
     cur = baza.cursor()
-    cur.execute("DELETE FROM nastanitve WHERE id = ?", (brisanje, ))
-    cur.execute("DELETE FROM hrana WHERE gost_id = ? AND datum = ?", (id, datum))
+    cur.execute("DELETE FROM nastanitve WHERE id = %s", (brisanje, ))
+    cur.execute("DELETE FROM hrana WHERE gost_id = %s AND datum = %s", (id, datum))
+    baza.commit()
     redirect('/gost/rezervacije/' + id)
 
 
@@ -243,8 +283,10 @@ def zaposleni():
     """)
 
     username = request.get_cookie("username", secret=skrivnost)
+
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('zaposleni.html', zaposleni=zaposleni, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -256,7 +298,8 @@ def brisi_zaposlenega(emso):
         return
     napaka = nastaviSporocilo()
     cur = baza.cursor()
-    cur.execute("UPDATE zaposleni SET stanje = ? WHERE emso = ?", ("odpuscen",emso))
+    cur.execute("UPDATE zaposleni SET stanje = %s WHERE emso = %s", ("odpuscen",emso))
+    baza.commit()
     redirect('/zaposleni')
 
 
@@ -269,8 +312,10 @@ def dodaj_zaposlenega_get():
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
 
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('zaposleni-dodaj.html', napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -288,14 +333,16 @@ def dodaj_zaposlenega_post():
     oddelek = request.forms.oddelek
     cur = baza.cursor()
 
-    uniqueemso = cur.execute('SELECT * FROM zaposleni WHERE emso = ?', (emso, )).fetchone()
+    cur.execute('SELECT * FROM zaposleni WHERE emso = %s', (emso, ))
+    uniqueemso = cur.fetchone()
 
     if uniqueemso != None:
         nastaviSporocilo("Zaposleni s tem emšom je že v sistemu")
         redirect('/zaposleni/dodaj')
     else:
-        cur.execute("INSERT INTO zaposleni (emso, ime, priimek, spol, placa, oddelek, username, geslo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", 
+        cur.execute("INSERT INTO zaposleni (emso, ime, priimek, spol, placa, oddelek, username, geslo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", 
              (emso, ime, priimek, spol, placa, oddelek, emso, emso))
+        baza.commit()
         redirect('/zaposleni')
 
 
@@ -307,11 +354,13 @@ def uredi_zaposlenega_get(emso):
     napaka = nastaviSporocilo()
 
     cur = baza.cursor()
-    zaposleni = cur.execute("SELECT emso, ime, priimek, spol, placa, oddelek FROM zaposleni WHERE emso = ?", (emso,)).fetchone()
-
+    cur.execute("SELECT emso, ime, priimek, spol, placa, oddelek FROM zaposleni WHERE emso = %s", (emso,))
+    zaposleni = cur.fetchone()
     username = request.get_cookie("username", secret=skrivnost)
+
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('zaposleni-uredi.html', zaposleni=zaposleni, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -327,8 +376,9 @@ def uredi_zaposlenega_post(emso):
     placa = request.forms.placa
     oddelek = request.forms.oddelek
     cur = baza.cursor()
-    cur.execute("UPDATE zaposleni SET ime = ?, priimek = ?, spol = ?, placa = ?, oddelek = ? WHERE emso = ?", 
+    cur.execute("UPDATE zaposleni SET ime = %s, priimek = %s, spol = %s, placa = %s, oddelek = %s WHERE emso = %s", 
         (ime, priimek, spol, placa, oddelek, emso))
+    baza.commit()
     redirect('/zaposleni')
 
 
@@ -347,7 +397,8 @@ def sobe():
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('sobe.html', sobe=sobe, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -358,10 +409,14 @@ def pregled_rezervacij(stevilka):
     if uporabnik is None: 
         return
     napaka = nastaviSporocilo()
-    zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ? ORDER BY datum ASC", (stevilka,)).fetchall()
-
+    cur = baza.cursor()
+    cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = %s ORDER BY datum ASC", (stevilka,))
+    zasedena = cur.fetchall()
     username = request.get_cookie("username", secret=skrivnost)
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('pregled-zasedenosti.html', zasedena=zasedena, stevilka=stevilka, napaka=napaka, tip_zaposlenega=tip_zaposlenega) 
 
@@ -374,11 +429,16 @@ def rezerviraj_sobo_get(stevilka):
     
     napaka = nastaviSporocilo()
     cur = baza.cursor()
-    zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ?", (stevilka,)).fetchall()
+
+    cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = %s", (stevilka,))
+    zasedena = cur.fetchall()
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('rezerviraj-sobo.html', zasedena=zasedena, napaka=napaka, stevilka=stevilka, tip_zaposlenega=tip_zaposlenega)
 
@@ -391,7 +451,9 @@ def rezerviraj_sobo_post(stevilka):
     gost_id = request.forms.gost_id
 
     cur = baza.cursor()
-    alisplohjenas = cur.execute("SELECT * FROM gost WHERE emso = ?", (gost_id, )).fetchone()
+
+    cur.execute("SELECT * FROM gost WHERE emso = %s", (gost_id, ))
+    alisplohjenas = cur.fetchone()
 
     if alisplohjenas == None:
         nastaviSporocilo("Vpiši veljaven emšo gosta ali pa ga dodaj v sistem")
@@ -422,26 +484,28 @@ def rezerviraj_sobo_post(stevilka):
         seznam = daterange(datumprihoda, datumodhoda)
 
         cur = baza.cursor()
-        mozne_rezervacije = cur.execute('SELECT id FROM nastanitve WHERE datum BETWEEN ? and ? AND soba_id = ?', (datumprihoda, datumodhodaminusena, soba_id, )).fetchone()
-        
+        cur.execute('SELECT id FROM nastanitve WHERE datum BETWEEN %s and %s AND soba_id = %s', (datumprihoda, datumodhodaminusena, soba_id, )).fetchone()
+        mozne_rezervacije = cur.fetchone()
+
         if mozne_rezervacije != None:
                 nastaviSporocilo("Žal je soba v tem obdobju že rezervirana.")
                 redirect('/sobe/rezerviraj/' + soba_id)
     
         cur = baza.cursor()
         for datum in seznam:
-            cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
+            cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (%s, %s, %s)", 
                 (gost_id, datum, soba_id))
             if zajtrk:
-                cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+                cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
                     (gost_id, datum, 'zajtrk'))
             if kosilo:
-                cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+                cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
                     (gost_id, datum, 'kosilo'))
             if vecerja:
-                cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+                cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
                     (gost_id, datum, 'vecerja'))
-        cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, ?, ?)", (datumprihoda, soba_id))
+        cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, %s, %s)", (datumprihoda, soba_id))
+        baza.commit()
         redirect('/sobe/pregled/' + soba_id)
 
 
@@ -452,7 +516,8 @@ def rezerviraj_sobo_post(id, stevilka):
         return
     
     cur = baza.cursor()
-    cur.execute("DELETE FROM nastanitve WHERE id = ?", (id, ))
+    cur.execute("DELETE FROM nastanitve WHERE id = %s", (id, ))
+    baza.commit()
     redirect('/sobe/pregled/' + stevilka)
 
 
@@ -475,8 +540,10 @@ def narocila():
     """)
 
     username = request.get_cookie("username", secret=skrivnost)
+
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('hrana.html', hrana=hrana, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -490,15 +557,18 @@ def postrezi(id):
     cur = baza.cursor()
 
     username = request.get_cookie("username", secret=skrivnost)
-    id_zaposlenega = cur.execute('SELECT emso FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT emso FROM zaposleni WHERE username = %s', (username, ))
+    id_zaposlenega = cur.fetchone()[0]
 
     from datetime import datetime
-    datum_hrane = cur.execute("SELECT datum FROM hrana WHERE id = ?",(id, )).fetchone()[0]
+    cur.execute("SELECT datum FROM hrana WHERE id = %s",(id, ))
+    datum_hrane = cur.fetchone()[0]
     danes = datetime.today().strftime('%Y-%m-%d')
 
     if danes == datum_hrane:
         cur = baza.cursor()
-        cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = ? WHERE id = ?",(id_zaposlenega, id, ))
+        cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = %s WHERE id = %s",(id_zaposlenega, id, ))
+        baza.commit()
         redirect('/hrana')
     else:
         nastaviSporocilo("Priprava hrane je možna samo na dan naročila")
@@ -515,7 +585,10 @@ def dodaj_hrano_get():
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+
+    cur = baza.cursor()  
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('hrana-dodaj.html', napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -529,8 +602,9 @@ def dodaj_hrano_post():
     datum = request.forms.datum
     obrok = request.forms.obrok
     cur = baza.cursor()
-    cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
-         (emso, datum, obrok))
+    cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
+        (emso, datum, obrok))
+    baza.commit()
     redirect('/hrana')
 
 
@@ -547,8 +621,10 @@ def zgodovina_hrane():
     """)
 
     username = request.get_cookie("username", secret=skrivnost)
+
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('hrana-zgodovina.html', hrana=hrana, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -560,7 +636,8 @@ def izbrisi_obrok(id):
         return
 
     cur = baza.cursor()
-    cur.execute("DELETE FROM hrana WHERE id = ?", (id, ))
+    cur.execute("DELETE FROM hrana WHERE id = %s", (id, ))
+    baza.commit()
     redirect('/hrana')
 
 
@@ -580,8 +657,10 @@ def ciscenje():
     """)
 
     username = request.get_cookie("username", secret=skrivnost)
+
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('ciscenje.html', ciscenje=ciscenje, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -600,9 +679,11 @@ def ciscenje_zgodovina():
         ORDER BY datum DESC;
     """)
 
-    username = request.get_cookie("username", secret=skrivnost)
+    username = request.get_cookie("username", secret=skrivnost)  
+
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
 
     return template('ciscenje-zgodovina.html', ciscenje=ciscenje, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
@@ -615,10 +696,15 @@ def pocisti(id):
     from datetime import date
 
     username = request.get_cookie("username", secret=skrivnost)
-    id_cistilke = cur.execute('SELECT emso FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
 
-    cur.execute("UPDATE ciscenje SET pocisceno = 1, datum = ?, cistilka_id = ? WHERE id = ?", 
+    cur = baza.cursor()
+    cur.execute('SELECT emso FROM zaposleni WHERE username = %s', (username, ))
+    id_cistilke = cur.fetchone()[0]
+
+    cur = baza.cursor()
+    cur.execute("UPDATE ciscenje SET pocisceno = 1, datum = %s, cistilka_id = %s WHERE id = %s", 
         (date.today().strftime("%Y-%m-%d"), id_cistilke, id))
+    baza.commit()
     redirect('/ciscenje')
 
 
@@ -661,7 +747,8 @@ def registracija_post():
     cur = baza.cursor()
     uporabnik = None   
     try:
-        uporabnik = cur.execute('SELECT * FROM gost WHERE emso = ?', (emso, )).fetchone()  
+        cur.execute('SELECT * FROM gost WHERE emso = %s', (emso, ))
+        uporabnik = cur.fetchone()  
     except:
         uporabnik = None    
     if uporabnik is not None:
@@ -670,7 +757,9 @@ def registracija_post():
         return
     uporabnik = None   
     try:
-        uporabnik = cur.execute('SELECT * FROM gost WHERE username = ?', (username, )).fetchone()  
+        cur = baza.cursor()
+        cur.execute('SELECT * FROM gost WHERE username = %s', (username, ))
+        uporabnik = cur.fetchone()  
     except:
         uporabnik = None    
     if uporabnik is not None:
@@ -678,7 +767,8 @@ def registracija_post():
         redirect('/registracija')
         return
     zgostitev = hashGesla(password)    
-    cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (?,?,?,?,?,?,?,?)',(emso, ime, priimek, drzava,spol, starost, username, zgostitev))
+    cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)',(emso, ime, priimek, drzava,spol, starost, username, zgostitev))
+    baza.commit()
     response.set_cookie('username', username, secret=skrivnost)
     return redirect('/prijava')
 
@@ -696,16 +786,21 @@ def prijava_post():
     hgeslo = None
     geslo = None
     try:
-        hgeslo = cur.execute('SELECT geslo FROM gost WHERE username = ?', (username, )).fetchone()
+        cur.execute("SELECT geslo FROM gost WHERE username=%s", (username, ))
+        hgeslo = cur.fetchone()
         hgeslo = hgeslo[0]
     except:
         hgeslo = None
-          
+
+    cur = baza.cursor()
     try:
-        geslo = cur.execute('SELECT geslo FROM zaposleni WHERE username = ?', (username, )).fetchone()
+        cur.execute("SELECT geslo FROM zaposleni WHERE username=%s", (username, ))
+        geslo = cur.fetchone()
         geslo = geslo[0]
     except:
         geslo = None    
+    
+
     if hgeslo is None and geslo is None:
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni!') 
         redirect('/prijava')
@@ -748,7 +843,7 @@ def gost():
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#   ~~~~~~~~~~~~~~~~~~~~~ PRVI DEL KODE: DOSTOP GOSTOV ~~~~~~~~~~~~~~~~~~~~
+#   ~~~~~~~~~~~~~~~~~~~~~ DRUGI DEL KODE: DOSTOP GOSTOV ~~~~~~~~~~~~~~~~~~~~
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -774,7 +869,8 @@ def pregled_rezervacij(stevilka):
         return
     napaka = nastaviSporocilo()
     cur = baza.cursor()
-    zasedena = cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek, gost.username FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = ? ORDER BY datum ASC", (stevilka,)).fetchall()
+    cur.execute("SELECT id, datum, gost_id, gost.ime, gost.priimek, gost.username FROM nastanitve INNER JOIN gost ON gost_id = gost.emso WHERE soba_id = %s ORDER BY datum ASC", (stevilka,))
+    zasedena = cur.fetchall()
     return template('pregled-zasedenosti_gost.html', zasedena=zasedena, stevilka=stevilka, napaka=napaka) 
 
 
@@ -787,11 +883,13 @@ def moje_rezervacije():
     napaka = nastaviSporocilo()
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    emso_gosta = cur.execute('SELECT emso FROM gost WHERE username = ?', (username, )).fetchone()[0]
+
+    cur.execute('SELECT emso FROM gost WHERE username = %s', (username, ))
+    emso_gosta = cur.fetchone()[0]
 
     cur = baza.cursor()
-    rezervacije = cur.execute("SELECT datum, soba_id FROM nastanitve WHERE gost_id = ? ORDER BY datum ASC", (emso_gosta,)).fetchall()
-
+    cur.execute("SELECT datum, soba_id FROM nastanitve WHERE gost_id = %s ORDER BY datum ASC", (emso_gosta,))
+    rezervacije = cur.fetchall()
     return template('sobe_gost-mojerezervacije.html', rezervacije=rezervacije, napaka=napaka) 
 
 
@@ -823,7 +921,9 @@ def rezerviraj_sobo_post(stevilka):
     
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    emso_gosta = cur.execute('SELECT emso FROM gost WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT emso FROM gost WHERE username = %s', (username, ))
+    emso_gosta = cur.fetchone()[0]
+    cur = baza.cursor()
 
     gost_id = emso_gosta
     soba_id = request.forms.soba_id
@@ -849,26 +949,28 @@ def rezerviraj_sobo_post(stevilka):
     seznam = daterange(datumprihoda, datumodhoda)
 
     cur = baza.cursor()
-    mozne_rezervacije = cur.execute('SELECT id FROM nastanitve WHERE datum BETWEEN ? and ? AND soba_id = ?', (datumprihoda, datumodhodaminusena, soba_id, )).fetchone()
+    cur.execute('SELECT id FROM nastanitve WHERE datum BETWEEN %s and %s AND soba_id = %s', (datumprihoda, datumodhodaminusena, soba_id, ))
+    mozne_rezervacije = cur.fetchone()
+    
     if mozne_rezervacije != None:
             nastaviSporocilo("Žal je soba v tem obdobju že rezervirana.")
             redirect('/sobe_gost/rezerviraj/' + soba_id)
  
     cur = baza.cursor()
     for datum in seznam:
-        cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (?, ?, ?)", 
+        cur.execute("INSERT INTO nastanitve (gost_id, datum, soba_id) VALUES (%s, %s, %s)", 
             (gost_id, datum, soba_id))
         if zajtrk:
-            cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+            cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
                 (gost_id, datum, 'zajtrk'))
         if kosilo:
-            cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+            cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
                 (gost_id, datum, 'kosilo'))
         if vecerja:
-            cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+            cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
                 (gost_id, datum, 'vecerja'))
-    
-    cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, ?, ?)", (datumprihoda, soba_id))
+    baza.commit()
+    cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, %s, %s)", (datumprihoda, soba_id))
     redirect('/sobe_gost/pregled/' + soba_id)
 
 
@@ -880,15 +982,17 @@ def brisi_sobo(datum, soba):
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    emso_gosta = cur.execute('SELECT emso FROM gost WHERE username = ?', (username, )).fetchone()[0]
+
+    cur.execute('SELECT emso FROM gost WHERE username = %s', (username, ))
+    emso_gosta = cur.fetchone()[0]
 
     cur = baza.cursor()
-    cur.execute("DELETE FROM nastanitve WHERE datum = ? AND soba_id = ? AND gost_id = ?", (datum, soba, emso_gosta))
+    cur.execute("DELETE FROM nastanitve WHERE datum = %s AND soba_id = %s AND gost_id = %s", (datum, soba, emso_gosta))
 
     cur = baza.cursor()
-    cur.execute("DELETE FROM hrana WHERE datum = ? AND gost_id = ?", (datum, emso_gosta))
-    cur.execute("DELETE FROM ciscenje WHERE soba_id = ? AND obvezno_do = ?", (soba, datum))
-
+    cur.execute("DELETE FROM hrana WHERE datum = %s AND gost_id = %s", (datum, emso_gosta))
+    cur.execute("DELETE FROM ciscenje WHERE soba_id = %s AND obvezno_do = %s", (soba, datum))
+    baza.commit()
     redirect('/sobe_gost/moje_rezervacije')
 
 
@@ -902,14 +1006,16 @@ def narocila():
     napaka = nastaviSporocilo()
 
     username = request.get_cookie("username", secret=skrivnost)
+
     cur = baza.cursor()  
-    emso_gosta = cur.execute('SELECT emso FROM gost WHERE username = ?', (username, )).fetchone()[0]
+    cur.execute('SELECT emso FROM gost WHERE username = %s', (username, )).fetchone()[0]
+    emso_gosta = cur.fetchone()[0]
 
     cur = baza.cursor()
     hrana = cur.execute("""
         SELECT DISTINCT hrana.id, nastanitve.soba_id, hrana.datum, tip_obroka FROM hrana 
         INNER JOIN nastanitve ON (hrana.gost_id = nastanitve.gost_id AND hrana.datum = nastanitve.datum)        
-        WHERE (hrana.gost_id == ? AND hrana.pripravljena != 1)
+        WHERE (hrana.gost_id == %s AND hrana.pripravljena != 1)
         ORDER BY hrana.datum ASC
     """, (emso_gosta, ))
     return template('hrana_gost.html', hrana=hrana, napaka=napaka)
@@ -933,21 +1039,26 @@ def dodaj_hrano_post():
 
     username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
-    emso_gosta = cur.execute('SELECT emso FROM gost WHERE username = ?', (username, )).fetchone()[0]
+
+    cur.execute('SELECT emso FROM gost WHERE username = %s', (username, ))
+    emso_gosta = cur.fetchone()[0]
 
     emso = emso_gosta
     datum = request.forms.datum
     obrok = request.forms.obrok
 
-    alisplohbivaprinas = cur.execute('SELECT * FROM nastanitve WHERE gost_id = ? AND datum = ?', (emso, datum, )).fetchone()
+    cur = baza.cursor()
+    cur.execute('SELECT * FROM nastanitve WHERE gost_id = %s AND datum = %s', (emso, datum, ))
+    alisplohbivaprinas = cur.fetchone()
 
     if alisplohbivaprinas == None:
         nastaviSporocilo('V izbranem datumu ne bivate v hotelu')  
         redirect('/hrana_gost')
 
     cur = baza.cursor()
-    cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (?, ?, ?, 0, NULL)", 
+    cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
          (emso, datum, obrok))
+    baza.commit()
     redirect('/hrana_gost')
 
 
@@ -958,7 +1069,8 @@ def izbrisi_obrok(id):
         return
     napaka = None
     cur = baza.cursor()
-    cur.execute("DELETE FROM hrana WHERE id = ?", (id, ))
+    cur.execute("DELETE FROM hrana WHERE id = %s", (id, ))
+    baza.commit()
     redirect('/hrana_gost')
 
 
@@ -971,7 +1083,7 @@ def uporabnik():
         return
     napaka = nastaviSporocilo()
     username = request.get_cookie("username", secret=skrivnost)
-    uporabnik = cur.execute("SELECT * FROM gost WHERE username = ?", (username, ))
+    uporabnik = cur.execute("SELECT * FROM gost WHERE username = %s", (username, ))
     return template('profil_uporabnika.html', uporabnik=uporabnik, napaka=napaka,)
 
 
@@ -985,13 +1097,17 @@ def uporabnik():
     napaka = nastaviSporocilo()
     username = request.get_cookie("username", secret=skrivnost)
 
-    cur = baza.cursor()  
-    uporabnik = cur.execute("SELECT emso, ime, priimek, spol, placa, oddelek, username, geslo FROM zaposleni WHERE username = ?", (username, ))
-    
+    cur = baza.cursor()
+
+    cur.execute("SELECT emso, ime, priimek, spol, placa, oddelek, username, geslo FROM zaposleni WHERE username = %s", (username, ))
+    uporabnik = cur.fetchall()
+
     username = request.get_cookie("username", secret=skrivnost)
+
     cur = baza.cursor()  
-    tip_zaposlenega = cur.execute('SELECT oddelek FROM zaposleni WHERE username = ?', (username, )).fetchone()[0]
-    
+    cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
+    tip_zaposlenega = cur.fetchone()[0]
+ 
     return template('profil_zaposlenega.html', uporabnik=uporabnik, napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
 
@@ -1023,34 +1139,36 @@ def spremeni_geslo():
         uporabnik1 = None
         uporabnik2 = None
         try: 
-            uporabnik1 = cur.execute("SELECT * FROM zaposleni WHERE username = ?", (username, )).fetchone()
+            cur = baza.cursor()
+            cur.execute("SELECT * FROM zaposleni WHERE username = %s", (username, ))
+            uporabnik1 = cur.fetchone()
         except:
             uporabnik1 = None
         try: 
-            uporabnik2 = cur.execute("SELECT * FROM gost WHERE username = ?", (username, )).fetchone()
+            cur = baza.cursor()
+            cur.execute("SELECT * FROM gost WHERE username = %s", (username, ))
+            uporabnik2 = cur.fetchone()            
         except:
             uporabnik2 = None    
         if uporabnik1: 
-            cur.execute("UPDATE zaposleni SET  geslo = ? WHERE username = ?", (password ,username))
-            return redirect('/prijava')  
+            cur.execute("UPDATE zaposleni SET  geslo = %s WHERE username = %s", (password ,username))
+            baza.commit()
+            return redirect('/prijava')
         if uporabnik2:
             zgostitev = hashGesla(password)
-            cur.execute("UPDATE gost SET  geslo = ? WHERE username = ?", (zgostitev ,username))     
+            cur.execute("UPDATE gost SET  geslo = %s WHERE username = %s", (zgostitev ,username))
+            baza.commit()
             return redirect('/prijava')
     nastaviSporocilo('Obvezna registracija') 
     redirect('/registracija')    
 
 
-
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-baza = sqlite3.connect(baza_datoteka, isolation_level=None)
-baza.set_trace_callback(print) 
+baza = psycopg2.connect(database=auth.dbname, host=auth.host, user=auth.user, password=auth.password, port = DB_PORT)
+cur = baza.cursor(cursor_factory=psycopg2.extras.DictCursor) 
 
-cur = baza.cursor()
-cur.execute("PRAGMA foreign_keys = ON;")
-
-run(host='localhost', port=8080, reloader=True)
+run(host='localhost', port=SERVER_PORT, reloader=True)
 
 
 
