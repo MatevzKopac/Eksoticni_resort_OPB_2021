@@ -13,7 +13,7 @@
   %for (id, soba_id, datum, tip_obroka) in hrana:
   <tr>
     <td>{{soba_id}}</td>
-    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{datum.strftime('%d.%m.%y')}}</td>
     <td>{{tip_obroka}}</td>
     <td>
       <form action="/hrana_gost/izbrisi/{{id}}" method="post" class="akcija">

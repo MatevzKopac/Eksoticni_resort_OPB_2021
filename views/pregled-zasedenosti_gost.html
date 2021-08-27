@@ -12,7 +12,7 @@
   </tr>
   %for (id, datum, gost_id, ime, priimek, username) in zasedena:
   <tr>
-    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{datum.strftime('%d.%m.%y')}}</td>
     <td>
       % if username != None:
       {{username}}

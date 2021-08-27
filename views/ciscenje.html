@@ -13,7 +13,7 @@
   %for (id, obvezno_do, soba_id) in ciscenje:
   <tr>
     <td>{{id}}</td>
-    <td>{{datetime.datetime.strptime(obvezno_do, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{obvezno_do.strftime('%d.%m.%y')}}</td>
     <td>{{soba_id}}</td>
     <td>
       <div class="akcije">

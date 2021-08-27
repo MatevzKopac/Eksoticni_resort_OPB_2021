@@ -14,7 +14,7 @@
   </tr>
   %for (id, datum, gost_id, ime, priimek) in zasedena:
   <tr>
-    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{datum.strftime('%d.%m.%y')}}</td>
     <td>{{gost_id}}</td>
     <td>{{ime}}</td>
     <td>{{priimek}}</td>

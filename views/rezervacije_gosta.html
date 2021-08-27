@@ -12,7 +12,7 @@
   </tr>
   %for (id, datum, soba) in rezervacije:
   <tr>
-    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{datum.strftime('%d.%m.%y')}}</td>
     <td>{{soba}}</td>
     <td>
         <div class="akcije">
