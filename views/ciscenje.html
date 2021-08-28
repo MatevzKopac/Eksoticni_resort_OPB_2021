@@ -17,7 +17,7 @@
     <td>{{soba_id}}</td>
     <td>
       <div class="akcije">
-        <form action="/ciscenje/pocisti/{{id}}" method="post" class="akcija">
+        <form action="{{url('pocisti', id=id)}}" method="post" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Počisti sobo</a>
         </form>
       </div>

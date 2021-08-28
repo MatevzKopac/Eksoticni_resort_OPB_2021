@@ -17,10 +17,10 @@
     <td>{{postelje}}</td>
     <td>
       <div class="akcije">
-        <form action="/sobe_gost/pregled/{{stevilka}}" method="get" class="akcija">
+        <form action="{{url('pregled_rezervacij_gost', stevilka=stevilka)}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Zasedenost</a>
         </form>
-        <form action="/sobe_gost/rezerviraj/{{stevilka}}" method="get" class="akcija">
+        <form action="{{url('rezerviraj_sobo_get_gost')}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Rezerviraj</a>
         </form>
       </div>

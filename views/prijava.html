@@ -3,7 +3,7 @@
 % rebase('base_prijava.html', napaka=napaka, naslov=naslov)
 
 <p>
-<form action="/prijava" method="post" autocomplete="off">
+<form action="{{url('prijava_post')}}" method="post" autocomplete="off">
 
     <div class="form-row">
         <div class="form-group col-md-6">
@@ -34,5 +34,5 @@
 
 
 <div class="form-row d-flex justify-content-start">
-    <p>Še nimate računa? <a href="\registracija">Registracija</a>
+    <p>Še nimate računa? <a href="{{url('registracija')}}">Registracija</a>
 </div>

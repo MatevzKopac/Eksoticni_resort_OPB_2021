@@ -2,7 +2,7 @@
 % setdefault('naslov', 'Uredi gosta')
 % rebase('base.html', napaka=napaka, naslov=naslov, tip_zaposlenega = tip_zaposlenega)
 
-<form action="{{'/gost/uredi/' + gost[0]}}" method="post">
+<form action="{{url('uredi_gosta_post', emso=gost[0])}}" method="post">
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="ime">Ime</label>

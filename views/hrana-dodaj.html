@@ -2,7 +2,7 @@
 % setdefault('naslov', 'Naroči hrano')
 % rebase('base.html', napaka=napaka, naslov=naslov, tip_zaposlenega=tip_zaposlenega)
 
-<form action="/hrana/dodaj" method="post">
+<form action="{{url('dodaj_hrano_post')}}" method="post">
 
     <div class="form-row">
         <div class="form-group col-md-6">

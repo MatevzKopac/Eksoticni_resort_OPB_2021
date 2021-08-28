@@ -25,14 +25,14 @@
     <td>{{tip_obroka}}</td>
     <td>
       <div class="akcije">
-        <form action="/hrana/postrezi/{{id}}" method="post" class="akcija">
+        <form action="{{url('postrezi', id=id)}}" method="post" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Postrezi</a>
         </form>
       </div>
     </td>
     <td>
       <div class="akcije">
-        <form action="/hrana/izbrisi/{{id}}" method="post" class="akcija">
+        <form action="{{url('izbrisi_obrok', id=id)}}" method="post" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Izbriši naročilo</a>
         </form>
       </div>

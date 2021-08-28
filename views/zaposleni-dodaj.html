@@ -2,7 +2,7 @@
 % setdefault('naslov', 'Dodaj novega zaposlenega')
 % rebase('base.html', napaka=napaka, naslov=naslov)
 
-<form action="/zaposleni/dodaj" method="post">
+<form action="{{url('dodaj_zaposlenega_post')}}" method="post">
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="emso">Emšo</label>

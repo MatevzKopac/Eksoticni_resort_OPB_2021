@@ -16,7 +16,7 @@
     <td>{{soba}}</td>
     <td>
         <div class="akcije">
-            <form action="/sobe_gost/brisi/{{datum}}/{{soba}}" method="post" class="akcija">
+            <form action="{{url('brisi_sobo_gost', datum=datum, soba=soba)}}" method="post" class="akcija">
               <a href="#" onclick="this.parentElement.submit()">Briši</a>
             </form>
         </div>

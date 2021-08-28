@@ -22,13 +22,13 @@
     <td>{{starost}}</td>
     <td>
       <div class="akcije">
-        <form action="/gost/brisi/{{emso}}" method="post" class="akcija">
+        <form action="{{url('brisi_gosta', emso=emso)}}" method="post" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Briši</a>
         </form>
-        <form action="/gost/uredi/{{emso}}" method="get" class="akcija">
+        <form action="{{url('uredi_gosta_get', emso=emso)}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Uredi</a>
         </form>
-        <form action="/gost/rezervacije/{{emso}}" method="get" class="akcija">
+        <form action="{{url('rezervacija_gosta', id=emso)}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Bivanje</a>
         </form>
       </div>

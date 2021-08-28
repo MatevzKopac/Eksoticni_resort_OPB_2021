@@ -2,7 +2,7 @@
 % setdefault('naslov', 'Uredi zaposlenega')
 % rebase('base.html', napaka=napaka, naslov=naslov)
 
-<form action="{{'/zaposleni/uredi/' + zaposleni[0]}}" method="post">
+<form action="{{url('uredi_zaposlenega_post', emso=emso)}}" method="post">
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="ime">Ime</label>

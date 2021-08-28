@@ -2,7 +2,7 @@
 % setdefault('naslov', 'Registracija')
 % rebase('base_prijava.html', napaka=napaka, naslov=naslov)
 
-<form action="/registracija" method="post" style="padding-bottom: 20px;" autocomplete="off">
+<form action="{{url('registracija_post')}}" method="post" style="padding-bottom: 20px;" autocomplete="off">
 
     <div class="form-row">
         <div class="form-group col-md-6">
@@ -111,7 +111,7 @@
 </form>
 
 <div class="form-row d-flex justify-content-start">
-    <p>Že imate račun? <a href="\prijava">Prijava</a>
+    <p>Že imate račun? <a href="{{url('prijava')}}">Prijava</a>
 </div>
 
 

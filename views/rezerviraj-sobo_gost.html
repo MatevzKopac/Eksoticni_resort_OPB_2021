@@ -3,7 +3,7 @@
 % setdefault('naslov', 'Dodaj novo rezervacijo')
 % rebase('base_gost.html', napaka=napaka, naslov=naslov)
 
-<form action="/sobe_gost/rezerviraj/<stevilka>" method="post">
+<form action="{{url('rezerviraj_sobo_stevilka_gost', stevilka=stevilka)}}" method="post">
     <div class="form-row">
         <div class="form-group col-md-6">
             <label for="soba_id">Številka sobe</label>

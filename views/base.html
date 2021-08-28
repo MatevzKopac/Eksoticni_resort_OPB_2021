@@ -24,27 +24,27 @@
               <div class="navbar-nav">
 <!--                <a class="nav-item nav-link active" href="\">Home <span class="sr-only">(current)</span></a> -->
                 % if tip_zaposlenega == 'recepcija' or tip_zaposlenega == 'admin':
-                <a class="nav-item nav-link" href="\gost">Gostje</a>
+                <a class="nav-item nav-link" href="{{url('gost')}}">Gostje</a>
                 % end
                 % if tip_zaposlenega == 'admin':
-                <a class="nav-item nav-link" href="\zaposleni">Zaposleni</a>
+                <a class="nav-item nav-link" href="{{url('zaposleni')}}">Zaposleni</a>
                 % end
                 % if tip_zaposlenega == 'recepcija' or tip_zaposlenega == 'admin':
-                <a class="nav-item nav-link" href="\sobe">Rezervacije</a>
+                <a class="nav-item nav-link" href="{{url('sobe')}}">Rezervacije</a>
                 % end
                 % if tip_zaposlenega == 'kuhinja' or tip_zaposlenega == 'admin':
-                <a class="nav-item nav-link" href="\hrana">Kuhinja</a>
+                <a class="nav-item nav-link" href="{{url('narocila')}}">Kuhinja</a>
                 % end
                 % if tip_zaposlenega == 'ciscenje' or tip_zaposlenega == 'admin':
-                <a class="nav-item nav-link" href="\ciscenje">Čiščenje</a>
+                <a class="nav-item nav-link" href="{{url('ciscenje')}}">Čiščenje</a>
                 % end
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       Profil
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="/uporabnik">Moji podatki</a>
-                        <a class="dropdown-item" href="\odjava">Odjavi se</a>
+                        <a class="dropdown-item" href="{{url('uporabnik_zaposleni')}}">Moji podatki</a>
+                        <a class="dropdown-item" href="{{url('odjava_get')}}">Odjavi se</a>
                     </div>
                 </li>            
               </div>
