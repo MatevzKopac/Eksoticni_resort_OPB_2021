@@ -44,3 +44,6 @@ morda ne spreminja kateri zaposleni.
 
 ## ER diagram
 Er diagram je dostopen [tukaj](https://github.com/MatevzKopac/Eksoticni_resort_OPB_2021/blob/main/ER-diagram.pdf).
+
+## Spletni dostop
+[![bottle.py](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/MatevzKopac/Eksoticni_resort_OPB_2021/main?urlpath=proxy/8080/) 

@@ -343,6 +343,7 @@ def dodaj_zaposlenega_post():
     placa = request.forms.placa
     oddelek = request.forms.oddelek
 
+    username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
     cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
     tip_zaposlenega = cur.fetchone()[0]
@@ -394,6 +395,7 @@ def uredi_zaposlenega_post(emso):
     placa = request.forms.placa
     oddelek = request.forms.oddelek
 
+    username = request.get_cookie("username", secret=skrivnost)
     cur = baza.cursor()  
     cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
     tip_zaposlenega = cur.fetchone()[0]
