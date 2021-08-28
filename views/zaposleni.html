@@ -1,7 +1,8 @@
 % setdefault('napaka', '')
 % rebase('base.html', napaka=napaka, naslov='Zaposleni', tip_zaposlenega=tip_zaposlenega)
 
-% include('orodna-vrstica.html', povezava='/zaposleni/dodaj', napis="Dodaj novega zaposlenega", stolpci='[0,1,2,5]')
+% include('orodna-vrstica.html', povezava=url('dodaj_zaposlenega_get'), napis="Dodaj novega zaposlenega", stolpci='[0,1,2,5]')
+
 <table id="izpis" class="table table-hover">
   <tr>
     <th>Emšo</th>
@@ -23,7 +24,7 @@
     <td>
       <div class="akcije">
         % if oddelek != 'admin':
-        <form action="{{url('brisi_zaposlenega_get', emso=emso))}}" method="post" class="akcija">
+        <form action="{{url('brisi_zaposlenega', emso=emso)}}" method="post" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Briši</a>
         </form>
 

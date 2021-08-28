@@ -2,7 +2,7 @@
 % rebase('base_gost.html', napaka=napaka, naslov='Aktivna naročila hrane')
 % import datetime
 
-% include('orodna-vrstica.html', povezava='/hrana_gost/dodaj', napis="Novo naročilo", stolpci='[0,1,2]')
+% include('orodna-vrstica.html', povezava=url('dodaj_hrano_get_gost'), napis="Novo naročilo", stolpci='[0,1,2]')
 <table id="izpis" class="table table-hover">
   <tr>
     <th>Številka sobe</th>

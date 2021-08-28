@@ -3,7 +3,7 @@
 
 % import datetime
 
-% include('orodna-vrstica.html', povezava='/sobe_gost/rezerviraj', napis="Dodaj novo rezervacijo", stolpci='[0,1]')
+% include('orodna-vrstica.html', povezava=url('rezerviraj_sobo_get_gost'), napis="Dodaj novo rezervacijo", stolpci='[0,1]')
 <table id="izpis" class="table table-hover">
   <tr>
     <th>Datum</th>
@@ -12,7 +12,7 @@
   </tr>
   %for (datum, soba) in rezervacije:
   <tr>
-    <td>{{datetime.datetime.strptime(datum, '%Y-%m-%d').strftime('%d.%m.%y')}}</td>
+    <td>{{datum.strftime('%d.%m.%y')}}</td>
     <td>{{soba}}</td>
     <td>
         <div class="akcije">

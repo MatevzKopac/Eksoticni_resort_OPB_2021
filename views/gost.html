@@ -1,7 +1,7 @@
 % setdefault('napaka', '')
 % rebase('base.html', napaka=napaka, naslov='Gostje', tip_zaposlenega = tip_zaposlenega)
 
-% include('orodna-vrstica.html', povezava='/gost/dodaj', napis="Dodaj novega gosta", stolpci='[0,1,2,3]')
+% include('orodna-vrstica.html', povezava=url('dodaj_gosta_get'), napis="Dodaj novega gosta", stolpci='[0,1,2,3]')
 <table id="izpis" class="table table-hover">
   <tr>
     <th>Emšo</th>
@@ -28,7 +28,7 @@
         <form action="{{url('uredi_gosta_get', emso=emso)}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Uredi</a>
         </form>
-        <form action="{{url('rezervacija_gosta', id=emso)}}" method="get" class="akcija">
+        <form action="{{url('rezervacije_gosta', id=emso)}}" method="get" class="akcija">
           <a href="#" onclick="this.parentElement.submit()">Bivanje</a>
         </form>
       </div>
