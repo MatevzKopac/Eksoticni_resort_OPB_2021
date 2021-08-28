@@ -172,7 +172,7 @@ def dodaj_gosta_post():
         cur.execute("INSERT INTO gost (emso, ime, priimek, drzava, spol, starost) VALUES (%s, %s, %s, %s, %s, %s)", 
              (emso, ime, priimek, drzava, spol, starost))
         baza.commit()
-        redirect(url('/gost'))
+        redirect(url('gost'))
 
 
 @get('/gost/uredi/<emso>')
@@ -209,7 +209,7 @@ def uredi_gosta_post(emso):
     cur.execute("UPDATE gost SET ime = %s, priimek = %s, drzava = %s, spol = %s, starost = %s WHERE emso = %s", 
         (ime, priimek, drzava, spol, starost, emso))
     baza.commit()
-    redirect(url('/gost'))
+    redirect(url('gost'))
 
 
 @post('/gost/brisi/<emso>')
@@ -223,10 +223,11 @@ def brisi_gosta(emso):
         cur.execute("DELETE FROM gost WHERE emso = %s", (emso, ))
         baza.commit()
         nastaviSporocilo()
-        redirect(url('/gost'))
+        redirect(url('gost'))
     except:
         nastaviSporocilo("Gost ima aktivno rezervacijo. Brisanje neuspešno!")
-        redirect(url('/gost'))        
+        #Tukaj se vse sesuje
+        redirect(url('gost'))        
 
 
 @get('/gost/rezervacije/<id>')
@@ -484,7 +485,7 @@ def rezerviraj_sobo_post(stevilka):
 
     if alisplohjenas == None:
         nastaviSporocilo("Vpiši veljaven emšo gosta ali pa ga dodaj v sistem")
-        redirect(url('/sobe/rezerviraj/' + stevilka))
+        redirect(url('rezerviraj_sobo_get',stevilka=stevilka))
 
     else:
         soba_id = request.forms.soba_id
@@ -499,10 +500,10 @@ def rezerviraj_sobo_post(stevilka):
 
         if datumprihoda > datumodhoda: 
             nastaviSporocilo("Datum prihoda ne sme biti kasneje kot datum odhoda")
-            redirect(url('/sobe/rezerviraj/' + soba_id))   
+            redirect(url('rezerviraj_sobo_get', stevilka=stevilka))   
         if datumprihoda < datetime.today().strftime('%Y-%m-%d'):
             nastaviSporocilo("Prosimo, da ne rezervirate sobe v preteklosti.")
-            redirect(url('/sobe/rezerviraj/' + soba_id))
+            redirect(url('rezerviraj_sobo_get', stevilka=stevilka))
 
         import datetime
         datumodhodaminusena = datetime.datetime.strptime(datumodhoda, "%Y-%m-%d")
@@ -516,7 +517,7 @@ def rezerviraj_sobo_post(stevilka):
 
         if mozne_rezervacije != None:
                 nastaviSporocilo("Žal je soba v tem obdobju že rezervirana.")
-                redirect(url('/sobe/rezerviraj/' + soba_id))
+                redirect(url('rezerviraj_sobo_get', stevilka=stevilka))
     
         cur = baza.cursor()
         for datum in seznam:
@@ -533,7 +534,7 @@ def rezerviraj_sobo_post(stevilka):
                     (gost_id, datum, 'vecerja'))
         cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, %s, %s)", (datumprihoda, soba_id))
         baza.commit()
-        redirect(url('/sobe/pregled/' + soba_id))
+        redirect(url('pregled_rezervacij', stevilka=stevilka))
 
 
 @post('/sobe/brisi/<id>/<stevilka>')
@@ -545,7 +546,7 @@ def brisi_sobo(id, stevilka):
     cur = baza.cursor()
     cur.execute("DELETE FROM nastanitve WHERE id = %s", (id, ))
     baza.commit()
-    redirect(url('/sobe/pregled/' + stevilka))
+    redirect(url('pregled_rezervacij',stevilka=stevilka))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ H R A N A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -583,16 +584,18 @@ def postrezi(id):
         return
 
     cur = baza.cursor()
-
     username = request.get_cookie("username", secret=skrivnost)
     cur.execute('SELECT emso FROM zaposleni WHERE username = %s', (username, ))
     id_zaposlenega = cur.fetchone()[0]
 
     from datetime import datetime
+
+    cur = baza.cursor()
     cur.execute("SELECT datum FROM hrana WHERE id = %s",(id, ))
     datum_hrane = cur.fetchone()[0]
     danes = datetime.today().strftime('%Y-%m-%d')
 
+    # Tukaj ne dela več
     if danes == datum_hrane:
         cur = baza.cursor()
         cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = %s WHERE id = %s",(id_zaposlenega, id, ))
@@ -1009,7 +1012,7 @@ def rezerviraj_sobo_post_gost(stevilka):
                 (gost_id, datum, 'vecerja'))
     baza.commit()
     cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, %s, %s)", (datumprihoda, soba_id))
-    redirect(url('/sobe_gost/pregled/' + soba_id))
+    redirect(url('pregled_rezervacij_gost', stevilka=soba_id))
 
 
 @post('/sobe_gost/brisi/<datum>/<soba>')
@@ -1046,7 +1049,7 @@ def narocila_gost():
     username = request.get_cookie("username", secret=skrivnost)
 
     cur = baza.cursor()  
-    cur.execute('SELECT emso FROM gost WHERE username = %s', (username, )).fetchone()[0]
+    cur.execute('SELECT emso FROM gost WHERE username = %s', (username, ))
     emso_gosta = cur.fetchone()[0]
 
     cur = baza.cursor()
