@@ -6,7 +6,7 @@ import csv
 from psycopg2 import sql
 
 
-from auth_public import *
+from auth import *
 
 baza_datoteka = 'eksoticni_resort.db'
 
