@@ -68,7 +68,7 @@ def preveriUporabnika():
             uporabnik = None
         if uporabnik: 
             return uporabnik
-    redirect('/prijava')
+    redirect(url('/prijava'))
 
 def preveriZaposlenega(): 
     username = request.get_cookie("username", secret=skrivnost)
@@ -82,7 +82,7 @@ def preveriZaposlenega():
             uporabnik = None
         if uporabnik: 
             return uporabnik
-    redirect('/prijava')
+    redirect(url('/prijava'))
 
 
 # Tukaj se potem začnejo spletni naslovi
@@ -93,7 +93,7 @@ def static(filename):
 
 @get('/')
 def zacetna_stran():
-    redirect('prijava')
+    redirect(url('prijava'))
 
 def hashGesla(s):
     m = hashlib.sha256()
@@ -165,14 +165,14 @@ def dodaj_gosta_post():
 
     if uniqueemso != None:
         nastaviSporocilo("Gost s tem emšom je že v sistemu")
-        redirect('/gost/dodaj')
+        redirect(url('/gost/dodaj'))
 
     else:
         cur = baza.cursor()
         cur.execute("INSERT INTO gost (emso, ime, priimek, drzava, spol, starost) VALUES (%s, %s, %s, %s, %s, %s)", 
              (emso, ime, priimek, drzava, spol, starost))
         baza.commit()
-        redirect('/gost')
+        redirect(url('/gost'))
 
 
 @get('/gost/uredi/<emso>')
@@ -209,7 +209,7 @@ def uredi_gosta_post(emso):
     cur.execute("UPDATE gost SET ime = %s, priimek = %s, drzava = %s, spol = %s, starost = %s WHERE emso = %s", 
         (ime, priimek, drzava, spol, starost, emso))
     baza.commit()
-    redirect('/gost')
+    redirect(url('/gost'))
 
 
 @post('/gost/brisi/<emso>')
@@ -223,10 +223,10 @@ def brisi_gosta(emso):
         cur.execute("DELETE FROM gost WHERE emso = %s", (emso, ))
         baza.commit()
         nastaviSporocilo()
-        redirect('/gost')
+        redirect(url('/gost'))
     except:
         nastaviSporocilo("Gost ima aktivno rezervacijo. Brisanje neuspešno!")
-        redirect('/gost')        
+        redirect(url('/gost'))        
 
 
 @get('/gost/rezervacije/<id>')
@@ -266,7 +266,7 @@ def brisi_rezervacijo(id, brisanje):
     cur.execute("DELETE FROM nastanitve WHERE id = %s", (brisanje, ))
     cur.execute("DELETE FROM hrana WHERE gost_id = %s AND datum = %s", (id, datum))
     baza.commit()
-    redirect('/gost/rezervacije/' + id)
+    redirect(url('/gost/rezervacije/' + id))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Z A P O S L E N I ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -308,10 +308,10 @@ def brisi_zaposlenega(emso):
         cur = baza.cursor()
         cur.execute("UPDATE zaposleni SET stanje = %s WHERE emso = %s", ("odpuscen",emso))
         baza.commit()
-        redirect('/zaposleni')
+        redirect(url('/zaposleni'))
     else:
         nastaviSporocilo("Nimate pravic za brisanje zaposlenih. Obrnite se na administratorja")
-        redirect('/zaposleni')
+        redirect(url('/zaposleni'))
 
 
 @get('/zaposleni/dodaj')
@@ -355,15 +355,15 @@ def dodaj_zaposlenega_post():
     if tip_zaposlenega == 'admin':
         if uniqueemso != None:
             nastaviSporocilo("Zaposleni s tem emšom je že v sistemu")
-            redirect('/zaposleni/dodaj')
+            redirect(url('/zaposleni/dodaj'))
         else:
             cur.execute("INSERT INTO zaposleni (emso, ime, priimek, spol, placa, oddelek, username, geslo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)", 
                  (emso, ime, priimek, spol, placa, oddelek, emso, emso))
             baza.commit()
-            redirect('/zaposleni')
+            redirect(url('/zaposleni'))
     else:
         nastaviSporocilo("Nimate pravic za dodajanje zaposlenih. Obrnite se na administratorja")
-        redirect('/zaposleni')
+        redirect(url('/zaposleni'))
 
 @get('/zaposleni/uredi/<emso>')
 def uredi_zaposlenega_get(emso):
@@ -405,10 +405,10 @@ def uredi_zaposlenega_post(emso):
         cur.execute("UPDATE zaposleni SET ime = %s, priimek = %s, spol = %s, placa = %s, oddelek = %s WHERE emso = %s", 
             (ime, priimek, spol, placa, oddelek, emso))
         baza.commit()
-        redirect('/zaposleni')
+        redirect(url('/zaposleni'))
     else:
         nastaviSporocilo("Nimate pravic za urejanje zaposlenih. Obrnite se na administratorja")
-        redirect('/zaposleni')
+        redirect(url('/zaposleni'))
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ S O B E ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -484,7 +484,7 @@ def rezerviraj_sobo_post(stevilka):
 
     if alisplohjenas == None:
         nastaviSporocilo("Vpiši veljaven emšo gosta ali pa ga dodaj v sistem")
-        redirect('/sobe/rezerviraj/' + stevilka)
+        redirect(url('/sobe/rezerviraj/' + stevilka))
 
     else:
         soba_id = request.forms.soba_id
@@ -499,10 +499,10 @@ def rezerviraj_sobo_post(stevilka):
 
         if datumprihoda > datumodhoda: 
             nastaviSporocilo("Datum prihoda ne sme biti kasneje kot datum odhoda")
-            redirect('/sobe/rezerviraj/' + soba_id)      
+            redirect(url('/sobe/rezerviraj/' + soba_id))   
         if datumprihoda < datetime.today().strftime('%Y-%m-%d'):
             nastaviSporocilo("Prosimo, da ne rezervirate sobe v preteklosti.")
-            redirect('/sobe/rezerviraj/' + soba_id)
+            redirect(url('/sobe/rezerviraj/' + soba_id))
 
         import datetime
         datumodhodaminusena = datetime.datetime.strptime(datumodhoda, "%Y-%m-%d")
@@ -516,7 +516,7 @@ def rezerviraj_sobo_post(stevilka):
 
         if mozne_rezervacije != None:
                 nastaviSporocilo("Žal je soba v tem obdobju že rezervirana.")
-                redirect('/sobe/rezerviraj/' + soba_id)
+                redirect(url('/sobe/rezerviraj/' + soba_id))
     
         cur = baza.cursor()
         for datum in seznam:
@@ -533,11 +533,11 @@ def rezerviraj_sobo_post(stevilka):
                     (gost_id, datum, 'vecerja'))
         cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, %s, %s)", (datumprihoda, soba_id))
         baza.commit()
-        redirect('/sobe/pregled/' + soba_id)
+        redirect(url('/sobe/pregled/' + soba_id))
 
 
 @post('/sobe/brisi/<id>/<stevilka>')
-def rezerviraj_sobo_post(id, stevilka):
+def brisi_sobo(id, stevilka):
     uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
@@ -545,7 +545,7 @@ def rezerviraj_sobo_post(id, stevilka):
     cur = baza.cursor()
     cur.execute("DELETE FROM nastanitve WHERE id = %s", (id, ))
     baza.commit()
-    redirect('/sobe/pregled/' + stevilka)
+    redirect(url('/sobe/pregled/' + stevilka))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ H R A N A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -597,10 +597,10 @@ def postrezi(id):
         cur = baza.cursor()
         cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = %s WHERE id = %s",(id_zaposlenega, id, ))
         baza.commit()
-        redirect('/hrana')
+        redirect(url('/hrana'))
     else:
         nastaviSporocilo("Priprava hrane je možna samo na dan naročila")
-        redirect('/hrana')
+        redirect(url('/hrana'))
 
 
 @get('/hrana/dodaj')
@@ -621,7 +621,7 @@ def dodaj_hrano_get():
     return template('hrana-dodaj.html', napaka=napaka, tip_zaposlenega=tip_zaposlenega)
 
 
-@post('/dodaj')
+@post('/hrana/dodaj')
 def dodaj_hrano_post():
     uporabnik = preveriZaposlenega()
     if uporabnik is None: 
@@ -633,7 +633,7 @@ def dodaj_hrano_post():
     cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
         (emso, datum, obrok))
     baza.commit()
-    redirect('/hrana')
+    redirect(url('/hrana'))
 
 
 @get('/hrana/zgodovina')
@@ -666,7 +666,7 @@ def izbrisi_obrok(id):
     cur = baza.cursor()
     cur.execute("DELETE FROM hrana WHERE id = %s", (id, ))
     baza.commit()
-    redirect('/hrana')
+    redirect(url('/hrana'))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ C I S C E N J E ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -734,7 +734,7 @@ def pocisti(id):
     cur.execute("UPDATE ciscenje SET pocisceno = 1, datum = %s, cistilka_id = %s WHERE id = %s", 
         (date.today().strftime("%Y-%m-%d"), id_cistilke, id))
     baza.commit()
-    redirect('/ciscenje')
+    redirect(url('/ciscenje'))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ R E G I S T R A C I J A, P R I J A V A ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -763,15 +763,15 @@ def registracija_post():
     starost = request.forms.starost  
     if password != password2:
         nastaviSporocilo('Gesli se ne ujemata') 
-        redirect('/registracija')
+        redirect(url('/registracija'))
         return
     if len(password) < 4:
         nastaviSporocilo('Geslo mora vsebovati vsaj štiri znake') 
-        redirect('/registracija')
+        redirect(url('/registracija'))
         return
     if emso is None or username is None or password is None or password2 is None or ime is None or priimek is None or spol is None or drzava is None or starost is None:
         nastaviSporocilo('Registracija ni možna') 
-        redirect('/registracija')
+        redirect(url('/registracija'))
         return
     cur = baza.cursor()
     uporabnik = None   
@@ -782,7 +782,7 @@ def registracija_post():
         uporabnik = None    
     if uporabnik is not None:
         nastaviSporocilo('Uporabnik s tem emšom že obstaja!') 
-        redirect('/registracija')
+        redirect(url('/registracija'))
         return
     uporabnik = None   
     try:
@@ -793,13 +793,13 @@ def registracija_post():
         uporabnik = None    
     if uporabnik is not None:
         nastaviSporocilo('Username že obstaja!') 
-        redirect('/registracija')
+        redirect(url('/registracija'))
         return
     zgostitev = hashGesla(password)    
     cur.execute('INSERT INTO gost (emso, ime, priimek, drzava, spol, starost, username, geslo) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)',(emso, ime, priimek, drzava,spol, starost, username, zgostitev))
     baza.commit()
     response.set_cookie('username', username, secret=skrivnost)
-    return redirect('/prijava')
+    return redirect(url('/prijava'))
 
 @post('/prijava')
 def prijava_post():
@@ -809,7 +809,7 @@ def prijava_post():
     # Tega v bistvu sploh ne rabimo
     if username is None or password is None:
         nastaviSporocilo('Mankajoče uporabniško ime ali geslo!') 
-        redirect('/prijava')
+        redirect(url('/prijava'))
     
     cur = baza.cursor()
     hgeslo = None
@@ -839,33 +839,33 @@ def prijava_post():
 
     if hgeslo is None and geslo is None and emgeslo is None:
         nastaviSporocilo('Uporabniško ime ali geslo nista ustrezni!') 
-        redirect('/prijava')
+        redirect(url('/prijava'))
         return
     if hashGesla(password) != hgeslo and password != emgeslo and hashGesla(password) != geslo:
         nastaviSporocilo('Napačno geslo!') 
-        redirect('/prijava')
+        redirect(url('/prijava'))
         return
     response.set_cookie('username', username, secret=skrivnost)
 
     # Tukaj je za zaposlene
     if hgeslo is None:
-        redirect('/uporabnik')
+        redirect(url('/uporabnik'))
 
     # Tukaj je za goste
     if geslo is None:
-        redirect('/uporabnik_gost')
+        redirect(url('/uporabnik_gost'))
 
 
 @get('/odjava')
 def odjava_get():
     response.delete_cookie('username')
-    redirect('/prijava')
+    redirect(url('/prijava'))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ DOSTOP GOSTOV ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/dostop_gosta')
-def gost():
+def gost_gost():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -887,7 +887,7 @@ def gost():
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ SOBE ZA GOSTE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/sobe_gost')
-def sobe():
+def sobe_gost():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -901,7 +901,7 @@ def sobe():
 
 
 @get('/sobe_gost/pregled/<stevilka>')
-def pregled_rezervacij(stevilka):
+def pregled_rezervacij_gost(stevilka):
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -913,7 +913,7 @@ def pregled_rezervacij(stevilka):
 
 
 @get('/sobe_gost/moje_rezervacije')
-def moje_rezervacije():
+def moje_rezervacije_gost():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return    
@@ -932,7 +932,7 @@ def moje_rezervacije():
 
 
 @get('/sobe_gost/rezerviraj')
-def rezerviraj_sobo_get():
+def rezerviraj_sobo_get_gost():
     uporabnik = preveriUporabnika()
     napaka = nastaviSporocilo()
 
@@ -942,7 +942,7 @@ def rezerviraj_sobo_get():
 
 
 @get('/sobe_gost/rezerviraj/<stevilka>')
-def rezerviraj_sobo_get(stevilka):
+def rezerviraj_sobo_stevilka_gost(stevilka):
     uporabnik = preveriUporabnika()
     napaka = nastaviSporocilo()
 
@@ -952,7 +952,7 @@ def rezerviraj_sobo_get(stevilka):
 
 
 @post('/sobe_gost/rezerviraj/<stevilka>')
-def rezerviraj_sobo_post(stevilka):
+def rezerviraj_sobo_post_gost(stevilka):
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -975,10 +975,10 @@ def rezerviraj_sobo_post(stevilka):
     from datetime import datetime
     if datumprihoda > datumodhoda: 
         nastaviSporocilo("Datum prihoda ne sme biti kasneje kot datum odhoda")
-        redirect('/sobe_gost/rezerviraj/' + soba_id)      
+        redirect(url('/sobe_gost/rezerviraj/' + soba_id))
     if datumprihoda < datetime.today().strftime('%Y-%m-%d'):
         nastaviSporocilo("Prosimo, da ne rezervirate sobe v preteklosti.")
-        redirect('/sobe_gost/rezerviraj/' + soba_id)
+        redirect(url('/sobe_gost/rezerviraj/' + soba_id))
 
     import datetime
     datumodhodaminusena = datetime.datetime.strptime(datumodhoda, "%Y-%m-%d")
@@ -992,7 +992,7 @@ def rezerviraj_sobo_post(stevilka):
     
     if mozne_rezervacije != None:
             nastaviSporocilo("Žal je soba v tem obdobju že rezervirana.")
-            redirect('/sobe_gost/rezerviraj/' + soba_id)
+            redirect(url('/sobe_gost/rezerviraj/' + soba_id))
  
     cur = baza.cursor()
     for datum in seznam:
@@ -1009,11 +1009,11 @@ def rezerviraj_sobo_post(stevilka):
                 (gost_id, datum, 'vecerja'))
     baza.commit()
     cur.execute("INSERT INTO ciscenje (pocisceno, cistilka_id, datum, obvezno_do, soba_id) VALUES (0, NULL, NULL, %s, %s)", (datumprihoda, soba_id))
-    redirect('/sobe_gost/pregled/' + soba_id)
+    redirect(url('/sobe_gost/pregled/' + soba_id))
 
 
 @post('/sobe_gost/brisi/<datum>/<soba>')
-def brisi_sobo(datum, soba):
+def brisi_sobo_gost(datum, soba):
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -1031,13 +1031,13 @@ def brisi_sobo(datum, soba):
     cur.execute("DELETE FROM hrana WHERE datum = %s AND gost_id = %s", (datum, emso_gosta))
     cur.execute("DELETE FROM ciscenje WHERE soba_id = %s AND obvezno_do = %s", (soba, datum))
     baza.commit()
-    redirect('/sobe_gost/moje_rezervacije')
+    redirect(url('/sobe_gost/moje_rezervacije'))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ HRANA ZA GOSTE ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/hrana_gost')
-def narocila():
+def narocila_gost():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -1061,7 +1061,7 @@ def narocila():
 
 
 @get('/hrana_gost/dodaj')
-def dodaj_hrano_get():
+def dodaj_hrano_get_gost():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -1071,7 +1071,7 @@ def dodaj_hrano_get():
 
 
 @post('/hrana_gost/dodaj')
-def dodaj_hrano_post():
+def dodaj_hrano_post_gost():
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -1092,17 +1092,17 @@ def dodaj_hrano_post():
 
     if alisplohbivaprinas == None:
         nastaviSporocilo('V izbranem datumu ne bivate v hotelu')  
-        redirect('/hrana_gost')
+        redirect(url('/hrana_gost'))
 
     cur = baza.cursor()
     cur.execute("INSERT INTO hrana (gost_id, datum, tip_obroka, pripravljena, pripravil_id) VALUES (%s, %s, %s, 0, NULL)", 
          (emso, datum, obrok))
     baza.commit()
-    redirect('/hrana_gost')
+    redirect(url('/hrana_gost'))
 
 
 @post('/hrana_gost/izbrisi/<id>')
-def izbrisi_obrok(id):
+def izbrisi_obrok_gost(id):
     uporabnik = preveriUporabnika()
     if uporabnik is None: 
         return
@@ -1110,13 +1110,13 @@ def izbrisi_obrok(id):
     cur = baza.cursor()
     cur.execute("DELETE FROM hrana WHERE id = %s", (id, ))
     baza.commit()
-    redirect('/hrana_gost')
+    redirect(url('/hrana_gost'))
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROFIL GOSTA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~1
 
 @get('/uporabnik_gost')
-def uporabnik():
+def uporabnik_gost():
     uporabnik = preveriUporabnika()
     if gost is None: 
         return
@@ -1130,7 +1130,7 @@ def uporabnik():
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~PROFIL ZAPOSLENEGA~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 @get('/uporabnik')
-def uporabnik():
+def uporabnik_zaposleni():
     uporabnik = preveriZaposlenega()
     if gost is None: 
         return
@@ -1162,17 +1162,17 @@ def spremeni_geslo():
     return template('spremeni_geslo.html', napaka=napaka)
 
 @post('/spremeni_geslo')
-def spremeni_geslo():
+def spremeni_geslo_post():
     username = request.get_cookie("username", secret=skrivnost)
     password = request.forms.password
     password2 = request.forms.password2
     if password != password2:
         nastaviSporocilo('Gesli se ne ujemata') 
-        redirect('/spremeni_geslo')
+        redirect(url('/spremeni_geslo'))
         return
     if len(password) < 4:
         nastaviSporocilo('Geslo mora vsebovati vsaj štiri znake') 
-        redirect('/spremeni_geslo')
+        redirect(url('/spremeni_geslo'))
         return 
     cur = baza.cursor()
     if username:    
@@ -1194,14 +1194,14 @@ def spremeni_geslo():
             zgostitev1 = hashGesla(password)
             cur.execute("UPDATE zaposleni SET  geslo = %s WHERE username = %s", (zgostitev1 ,username))
             baza.commit()
-            return redirect('/prijava')
+            return redirect(url('/prijava'))
         if uporabnik2:
             zgostitev2 = hashGesla(password)
             cur.execute("UPDATE gost SET  geslo = %s WHERE username = %s", (zgostitev2 ,username))
             baza.commit()
-            return redirect('/prijava')
+            return redirect(url('/prijava'))
     nastaviSporocilo('Obvezna registracija') 
-    redirect('/registracija')    
+    redirect(url('/registracija'))
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
