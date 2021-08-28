@@ -1,0 +1,17 @@
+# Created by pytest automatically.
+*~
+__pycache__
+*.aux
+*.code-workspace
+*.log
+*.out
+*.pyc
+.DS_Store
+.Rhistory
+.Rproj.user
+.RData
+.ipynb_checkpoints
+.vscode
+auth.py
+auth.R
+Thumbs.db
