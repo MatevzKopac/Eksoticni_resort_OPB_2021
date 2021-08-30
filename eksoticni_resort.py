@@ -59,7 +59,7 @@ def nastaviSporocilo(sporocilo = None):
 def preveriUporabnika(): 
     username = request.get_cookie("username", secret=skrivnost)
     if username:
-        cur = baza.cursor()    
+        cur = baza.cursor()
         uporabnik = None
         try: 
             cur.execute('SELECT * FROM gost WHERE username = %s', (username, ))
@@ -115,13 +115,12 @@ def gost():
     if uporabnik is None: 
         return
     napaka = nastaviSporocilo()
-    cur = baza.cursor()
 
+    cur = baza.cursor()
     cur.execute("SELECT emso, ime, priimek, drzava, spol, starost FROM gost")
     gosti = cur
 
     username = request.get_cookie("username", secret=skrivnost)
-    cur = baza.cursor()  
 
     cur = baza.cursor()  
     cur.execute('SELECT oddelek FROM zaposleni WHERE username = %s', (username, ))
@@ -217,17 +216,19 @@ def brisi_gosta(emso):
     uporabnik = preveriZaposlenega()
     if uporabnik is None: 
         return
-    napaka = None
+    
     cur = baza.cursor()
-    try:
+    cur.execute('SELECT * FROM nastanitve WHERE gost_id = %s', (emso, ))
+    aliimanastanitev = cur.fetchone()
+
+
+    if aliimanastanitev == None:
         cur.execute("DELETE FROM gost WHERE emso = %s", (emso, ))
         baza.commit()
-        nastaviSporocilo()
         redirect(url('gost'))
-    except:
+    else:
         nastaviSporocilo("Gost ima aktivno rezervacijo. Brisanje neuspešno!")
-        #Tukaj se vse sesuje
-        redirect(url('gost'))        
+        redirect(url('/gost'))
 
 
 @get('/gost/rezervacije/<id>')
@@ -591,12 +592,12 @@ def postrezi(id):
     from datetime import datetime
 
     cur = baza.cursor()
-    cur.execute("SELECT datum FROM hrana WHERE id = %s",(id, ))
+    cur.execute('SELECT datum FROM hrana WHERE id = %s',(id, ))
     datum_hrane = cur.fetchone()[0]
     danes = datetime.today().strftime('%Y-%m-%d')
 
     # Tukaj ne dela več
-    if danes == datum_hrane:
+    if str(danes) == str(datum_hrane):
         cur = baza.cursor()
         cur.execute("UPDATE hrana SET pripravljena = 1, pripravil_id = %s WHERE id = %s",(id_zaposlenega, id, ))
         baza.commit()
