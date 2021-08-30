@@ -268,7 +268,7 @@ def brisi_rezervacijo(id, brisanje):
     cur.execute("DELETE FROM nastanitve WHERE id = %s", (brisanje, ))
     cur.execute("DELETE FROM hrana WHERE gost_id = %s AND datum = %s", (id, datum))
     baza.commit()
-    redirect(url('/gost/rezervacije/' + id))
+    redirect(url('rezervacije_gosta',id=id))
 
 
 #   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Z A P O S L E N I ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -979,10 +979,10 @@ def rezerviraj_sobo_post_gost(stevilka):
     from datetime import datetime
     if datumprihoda > datumodhoda: 
         nastaviSporocilo("Datum prihoda ne sme biti kasneje kot datum odhoda")
-        redirect(url('/sobe_gost/rezerviraj/' + soba_id))
+        redirect(url('rezerviraj_sobo_stevilka_gost',stevilka=soba_id))
     if datumprihoda < datetime.today().strftime('%Y-%m-%d'):
         nastaviSporocilo("Prosimo, da ne rezervirate sobe v preteklosti.")
-        redirect(url('/sobe_gost/rezerviraj/' + soba_id))
+        redirect(url('rezerviraj_sobo_stevilka_gost',stevilka=soba_id))
 
     import datetime
     datumodhodaminusena = datetime.datetime.strptime(datumodhoda, "%Y-%m-%d")
@@ -996,7 +996,7 @@ def rezerviraj_sobo_post_gost(stevilka):
     
     if mozne_rezervacije != None:
             nastaviSporocilo("Žal je soba v tem obdobju že rezervirana.")
-            redirect(url('/sobe_gost/rezerviraj/' + soba_id))
+            redirect(url('rezerviraj_sobo_stevilka_gost',stevilka=soba_id))
  
     cur = baza.cursor()
     for datum in seznam:
