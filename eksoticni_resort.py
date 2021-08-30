@@ -315,7 +315,6 @@ def brisi_zaposlenega(emso):
         nastaviSporocilo("Nimate pravic za brisanje zaposlenih. Obrnite se na administratorja")
         redirect(url('/zaposleni'))
 
-
 @get('/zaposleni/dodaj')
 def dodaj_zaposlenega_get():
     uporabnik = preveriZaposlenega()
