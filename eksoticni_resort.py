@@ -51,9 +51,9 @@ skrivnost = "rODX3ulHw3ZYRdbIVcp1IfJTDn8iQTH6TFaNBgrSkjIulr"
 def nastaviSporocilo(sporocilo = None):
     staro = request.get_cookie("sporocilo", secret=skrivnost)
     if sporocilo is None:
-        response.delete_cookie('sporocilo')
+        response.delete_cookie('sporocilo', path="/")
     else:
-        response.set_cookie('sporocilo', sporocilo, path="/", secret=skrivnost)
+        response.set_cookie('sporocilo', sporocilo, secret=skrivnost, path="/")
     return staro 
     
 def preveriUporabnika(): 
